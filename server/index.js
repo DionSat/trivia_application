@@ -51,6 +51,7 @@ io.on("connection", (socket) => {
       clearInterval(interval);
     });
 
+    //When all the clients send a ready event
     socket.on('ready', () => {
         console.log(socket.id, "is Ready");
         const room = rooms[socket.roomId];
