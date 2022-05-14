@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
     /**
      * Listen when a user wants the list of room names
      */
-    socket.on('getRoomNames', (data, callback) => {
+    socket.on('getRoomNames', (callback) => {
         const roomNames = [];
         for (const id in rooms) {
             const {name} = rooms[id];
