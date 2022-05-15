@@ -6,10 +6,9 @@ const cors = require("cors");
 const { randomUUID } = require("crypto");
 
 /**
- * Instance Variables
+ * A room for whole server for now
  */
- const rooms = {};
-
+const room = {};
 
 app.use(cors());
 
@@ -51,52 +50,50 @@ io.on("connection", (socket) => {
       clearInterval(interval);
     });
 
-    //When all the clients send a ready event
-    socket.on('ready', () => {
-        console.log(socket.id, "is Ready");
-        const room = rooms[socket.roomId];
-        if(room.sockets.length == 3) {
-            //tell players to start
-            for(const client of room.sockets) {
-                client.emit('initGame')
-            }
-        }
-    })
+    // socket.on('ready', () => {
+    //     console.log(socket.id, "is Ready");
+    //     if(room.sockets.length == 10) {
+    //         //tell players to start
+    //         for(const client of room.sockets) {
+    //             client.emit('initGame')
+    //         }
+    //     }
+    // })
 
     /**
-     * Listen when a user wants to create a room
+     * Listen when a user wants to create a room.
+     * For now this will not be used.
      */
-    socket.on('createRoom', (roomName, callback) => {
-        const room = {
-            id: randomUUID(),
-            name: roomName,
-            sockets: []
-        };
-        rooms[room.id] = room;
+    // socket.on('createRoom', (roomName, callback) => {
+    //     const room = {
+    //         id: randomUUID(),
+    //         name: roomName,
+    //         sockets: []
+    //     };
     
-        joinRoom(socket, room)
-        callback();
-    });
+    //     joinRoom(socket, room)
+    //     callback();
+    // });
     
     /**
      * Listen when a user wants the list of room names
+     * Not using for now
      */
-    socket.on('getRoomNames', (callback) => {
-        const roomNames = [];
-        for (const id in rooms) {
-            const {name} = rooms[id];
-            const room = {name, id};
-            roomNames.push(room);
-        }
+    // socket.on('getRoomNames', (callback) => {
+    //     const roomNames = [];
+    //     for (const id in rooms) {
+    //         const {name} = rooms[id];
+    //         const room = {name, id};
+    //         roomNames.push(room);
+    //     }
     
-        callback(roomNames);
-    })
+    //     callback(roomNames);
+    // })
     
     /**
      * Listen when a user has joined a room
      */
-    socket.on('joinRoom', (roomId, callback) => {
-        const room = rooms[roomId];
+    socket.on('joinGame', (callback) => {
         joinRoom(socket, room);
         callback();
     })
