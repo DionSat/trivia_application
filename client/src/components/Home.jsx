@@ -7,6 +7,7 @@ function Home() {
     const [ answerText, setAnswerText ] = useState("");
     const [ rooms, setRooms ] = useState(null);
     const [ socket, _ ] = React.useContext(SocketContext)
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
         socket.on("clientState", data => {
@@ -121,7 +122,15 @@ function Home() {
                 <button type="button" onClick={getRooms}>Get Rooms</button>
             </p>
             <div>
-                {roomState &&
+                {!ready && roomState && 
+                    <div>
+                        <div>{roomState.name}</div>
+                        <div>
+                            <button type="button" onClick={() => setReady(true)}>Ready</button>
+                        </div>
+                    </div>
+                }
+                {roomState && ready &&
                 <div>
                     <div>{roomState.name}</div>
                     <b>{roomState.question}</b>

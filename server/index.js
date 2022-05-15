@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
     
     /**
      * Listen when a user wants the list of room names
-     * Not using for now
+     * 
      */
     socket.on('getRoomNames', (callback) => {
         let roomNames = [];
