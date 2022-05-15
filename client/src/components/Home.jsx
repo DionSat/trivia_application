@@ -51,22 +51,22 @@ function Home() {
         });
     };
 
-    const RenderRoomState = () => {
-        if (roomState == null) {
-            return (<div></div>);
-        } else {
-            return (
-                <div>
-                    <div>{roomState.name}</div>
-                    <b>{roomState.question}</b>
-                    <div>
-                        <input type="text" value={answerText} onInput={(e) => setAnswerText(e.target.value)} />
-                        <button type="button" onClick={submitAnswer}>Submit</button>
-                    </div>
-                </div>
-            );
-        }
-    };
+    // const RenderRoomState = () => {
+    //     if (roomState == null) {
+    //         return (<div></div>);
+    //     } else {
+    //         return (
+    //             <div>
+    //                 <div>{roomState.name}</div>
+    //                 <b>{roomState.question}</b>
+    //                 <div>
+    //                     <input type="text" value={answerText} onInput={(e) => setAnswerText(e.target.value)} />
+    //                     <button type="button" onClick={submitAnswer}>Submit</button>
+    //                 </div>
+    //             </div>
+    //         );
+    //     }
+    // };
 
     const RenderClientState = () => {
         if (clientState == null) {
@@ -121,7 +121,15 @@ function Home() {
                 <button type="button" onClick={getRooms}>Get Rooms</button>
             </p>
             <div>
-                <RenderRoomState />
+                {roomState &&
+                <div>
+                    <div>{roomState.name}</div>
+                    <b>{roomState.question}</b>
+                    <div>
+                        <input type="text" value={answerText} onInput={(e) => setAnswerText(e.target.value)} />
+                        <button type="button" onClick={submitAnswer}>Submit</button>
+                    </div>
+                </div>}
             </div>
             <div>
                 <RenderRoomInfos />
