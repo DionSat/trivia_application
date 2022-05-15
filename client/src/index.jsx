@@ -1,8 +1,12 @@
-import React from 'react';
+import React from "react";
 import ReactDOM from 'react-dom/client';
 import Routing from './Routing';
-
+import { SocketProvider } from './contexts/Socket/'
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+
 root.render(
-    <Routing />
+    <SocketProvider>
+        <Routing />
+    </SocketProvider>
 );
