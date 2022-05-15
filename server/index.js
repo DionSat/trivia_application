@@ -4,6 +4,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const { randomUUID } = require("crypto");
+const { getTriviaQuestion } = require('./jservice')
 const Pool = require('pg').Pool
 require('dotenv').config()
 
@@ -48,11 +49,6 @@ const joinRoom = (socket, room) => {
     console.log(socket.id, " Left ", room.id);
 }
 
-const getQuestion = () => {
-    //variable for the questions
-    socket.emit("GetQuestion", "question_variable");
-}
-
 let interval = setInterval(() => intervalTick(), 1000);
 
 io.on("connection", (socket) => {
@@ -83,9 +79,19 @@ io.on("connection", (socket) => {
             id: randomUUID(),
             gameId: 0,
             name: roomName,
+            questions: [],
+            activeQuestionId: 0,
             sockets: []
         };
         rooms.set(room.id, room);
+
+        for (let i = 0; i < 10; i++) {
+            getTriviaQuestion((success, response) => {
+                if (success) {
+                    room.questions.push({ question: response.question, answer: response.answer });
+                }
+            });
+        }
     
         joinRoom(socket, room)
         callback();
@@ -150,14 +156,16 @@ const sendClientState = socket => {
 
 const sendRoomState = room => {
 
+    let question = null;
+    if (room.activeQuestionId < room.questions.length) {
+        question = room.questions[room.activeQuestionId].question;
+    }
+
     const response = {
         date: new Date(),
         name: room.name,
         players: room.sockets.map((o, i) => { return { id: o.id, name: String(o.id), score: 0, answeredQuestion: false }; }),
-        question: {
-            value: "Question?",
-            choices: ["A", "B", "C", "D"]
-        }
+        question: question
     };
 
     // 

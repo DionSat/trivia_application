@@ -4,6 +4,7 @@ import { SocketContext } from "../contexts/Socket/index"
 function Home() {
     const [ clientState, setClientState ] = useState(null);
     const [ roomState, setRoomState ] = useState(null);
+    const [ answerText, setAnswerText ] = useState("");
     const [ rooms, setRooms ] = useState(null);
     const [ socket, _ ] = React.useContext(SocketContext)
 
@@ -44,6 +45,12 @@ function Home() {
         });
     };
 
+    const submitAnswer = () => {
+        socket.emit('answer', answerText, (response) => {
+            console.log(response);
+        });
+    };
+
     const RenderRoomState = () => {
         if (roomState == null) {
             return (<div></div>);
@@ -51,8 +58,11 @@ function Home() {
             return (
                 <div>
                     <div>{roomState.name}</div>
-                    <div>{roomState.question.value}</div>
-                    <div>{roomState.question.choices.map((v,i) => <div style={{paddingLeft: 10}}>{v}</div>)}</div>
+                    <b>{roomState.question}</b>
+                    <div>
+                        <input type="text" value={answerText} onInput={(e) => setAnswerText(e.target.value)} />
+                        <button type="button" onClick={submitAnswer}>Submit</button>
+                    </div>
                 </div>
             );
         }
