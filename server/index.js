@@ -34,6 +34,11 @@ const joinRoom = (socket, room) => {
     })
 }
 
+const getQuestion = () => {
+    //variable for the questions
+    socket.emit("GetQuestion", "question_variable");
+}
+
 let interval;
 
 io.on("connection", (socket) => {
