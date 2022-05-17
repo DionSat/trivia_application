@@ -206,6 +206,12 @@ function Home() {
       </div>
       <div>
         <RenderRoomInfos />
+        {roomState && (
+          <div>
+            {roomState.players.map(function(d, idx){
+              return (<p key={idx}>{d.name}</p>)})}
+          </div>
+        )}
       </div>
     </div>
   );
