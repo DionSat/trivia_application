@@ -8,6 +8,7 @@ function Home() {
   const [rooms, setRooms] = useState(null);
   const [socket, _] = React.useContext(SocketContext);
   const [ready, setReady] = useState(false);
+  const [allReady, setAllReady] = useState(false);
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -19,6 +20,9 @@ function Home() {
     socket.on('roomState', (data) => {
       console.log(data);
       setRoomState(data);
+      if(data.players.every(element => element.ready === true)) {
+        setAllReady(true);
+      }
     });
   }, []);
 
@@ -55,6 +59,13 @@ function Home() {
       console.log(response);
     });
   };
+
+  const readyUp = () => {
+    setReady(true);
+    socket.emit('ready', true, (response) => {
+      console.log(response);
+    })
+  }
 
   // const RenderRoomState = () => {
   //     if (roomState == null) {
@@ -181,13 +192,13 @@ function Home() {
           <div>
             <div>{roomState.name}</div>
             <div>
-              <button type='button' onClick={() => setReady(true)}>
+              <button type='button' onClick={readyUp}>
                 Ready
               </button>
             </div>
           </div>
         )}
-        {roomState && ready && (
+        {roomState && allReady && (
           <div>
             <div>{roomState.name}</div>
             <b>{roomState.question}</b>

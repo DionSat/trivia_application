@@ -54,6 +54,7 @@ let interval = setInterval(() => intervalTick(), 1000);
 io.on("connection", (socket) => {
     //give each socket a random identifier
     socket.id = randomUUID();
+    socket.ready = false;
     console.log("New client connected");
 
     socket.on("disconnect", () => {
@@ -63,15 +64,15 @@ io.on("connection", (socket) => {
         leaveRoom(socket, room);
     });
 
-    // socket.on('ready', () => {
-    //     console.log(socket.id, "is Ready");
-    //     if(room.sockets.length == 10) {
-    //         //tell players to start
-    //         for(const client of room.sockets) {
-    //             client.emit('initGame')
-    //         }
-    //     }
-    // })
+    socket.on('ready', () => {
+        socket.ready = true;
+        console.log(socket.id, "is Ready");
+        // if(room.sockets.length == 4) {
+        //     for(const client of room.sockets) {
+        //         client.emit('initGame')
+        //     }
+        // }
+    })
 
     /**
      * Listen when a user wants to create a room.
@@ -167,7 +168,7 @@ const sendRoomState = room => {
     const response = {
         date: new Date(),
         name: room.name,
-        players: room.sockets.map((o, i) => { return { id: o.id, name: String(o.id), score: 0, answeredQuestion: false }; }),
+        players: room.sockets.map((o, i) => { return { id: o.id, name: String(o.id), score: 0, answeredQuestion: false, ready: o.ready }; }),
         question: question
     };
 
