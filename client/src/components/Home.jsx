@@ -104,7 +104,7 @@ function Home() {
 
   const RenderJoinRoom = (params) => {
     let { room } = params;
-    if (clientState != null && clientState.roomId == room.id) {
+    if (clientState != null && clientState.roomId === room.id) {
       return (
         <div>
           <button type='button' onClick={() => leaveRoom()}>
@@ -136,6 +136,34 @@ function Home() {
       );
     }
   };
+
+  const RenderLobbyState = () => {
+    if(!roomState) {
+      return <p></p>;
+    }
+    else {
+      return(
+        <div>
+          {roomState.players.map((user, value) => {
+            if(user.ready === true)
+              return (
+                <p className="userReady" key={value}>{user.name}</p>
+              );
+            else 
+              return (
+                <p className="userNotReady" key={value}>{user.name}</p>
+              );
+          })}
+        </div>
+      );
+    }
+
+    // roomState.players.map(function(index, value){
+    //   return (
+    //     <p key={value}>{index.name}</p>
+    //   )
+    // })
+  }
 
   return (
     <div
@@ -217,12 +245,7 @@ function Home() {
       </div>
       <div>
         <RenderRoomInfos />
-        {roomState && (
-          <div>
-            {roomState.players.map(function(d, idx){
-              return (<p key={idx}>{d.name}</p>)})}
-          </div>
-        )}
+        <RenderLobbyState />
       </div>
     </div>
   );
