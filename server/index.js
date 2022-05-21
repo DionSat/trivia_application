@@ -67,11 +67,6 @@ io.on("connection", (socket) => {
     socket.on('ready', () => {
         socket.ready = true;
         console.log(socket.id, "is Ready");
-        // if(room.sockets.length == 4) {
-        //     for(const client of room.sockets) {
-        //         client.emit('initGame')
-        //     }
-        // }
     })
 
     /**
