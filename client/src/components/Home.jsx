@@ -8,6 +8,7 @@ function Home() {
   const [rooms, setRooms] = useState(null);
   const [socket, _] = React.useContext(SocketContext);
   const [ready, setReady] = useState(false);
+  const [allReady, setAllReady] = useState(false);
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -19,6 +20,9 @@ function Home() {
     socket.on('roomState', (data) => {
       console.log(data);
       setRoomState(data);
+      if(data.players.every(element => element.ready === true)) {
+        setAllReady(true);
+      }
     });
   }, []);
 
@@ -55,6 +59,13 @@ function Home() {
       console.log(response);
     });
   };
+
+  const readyUp = () => {
+    setReady(true);
+    socket.emit('ready', true, (response) => {
+      console.log(response);
+    })
+  }
 
   // const RenderRoomState = () => {
   //     if (roomState == null) {
@@ -93,7 +104,7 @@ function Home() {
 
   const RenderJoinRoom = (params) => {
     let { room } = params;
-    if (clientState != null && clientState.roomId == room.id) {
+    if (clientState != null && clientState.roomId === room.id) {
       return (
         <div>
           <button type='button' onClick={() => leaveRoom()}>
@@ -125,6 +136,34 @@ function Home() {
       );
     }
   };
+
+  const RenderLobbyState = () => {
+    if(!roomState) {
+      return <p></p>;
+    }
+    else {
+      return(
+        <div>
+          {roomState.players.map((user, value) => {
+            if(user.ready === true)
+              return (
+                <p className="userReady" key={value}>{user.name}</p>
+              );
+            else 
+              return (
+                <p className="userNotReady" key={value}>{user.name}</p>
+              );
+          })}
+        </div>
+      );
+    }
+
+    // roomState.players.map(function(index, value){
+    //   return (
+    //     <p key={value}>{index.name}</p>
+    //   )
+    // })
+  }
 
   return (
     <div
@@ -181,13 +220,13 @@ function Home() {
           <div>
             <div>{roomState.name}</div>
             <div>
-              <button type='button' onClick={() => setReady(true)}>
+              <button type='button' onClick={readyUp}>
                 Ready
               </button>
             </div>
           </div>
         )}
-        {roomState && ready && (
+        {roomState && allReady && (
           <div>
             <div>{roomState.name}</div>
             <b>{roomState.question}</b>
@@ -206,12 +245,7 @@ function Home() {
       </div>
       <div>
         <RenderRoomInfos />
-        {roomState && (
-          <div>
-            {roomState.players.map(function(d, idx){
-              return (<p key={idx}>{d.name}</p>)})}
-          </div>
-        )}
+        <RenderLobbyState />
       </div>
     </div>
   );
