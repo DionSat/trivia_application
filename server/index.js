@@ -13,6 +13,8 @@ require('dotenv').config()
  */
 const rooms = new Map();
 
+const port = process.env.PORT || 4001;
+
 app.use(cors());
 
 const server = http.createServer(app);
@@ -251,6 +253,6 @@ const setupDatabase = () => {
 };
 
 //setupDatabase();
-server.listen(4001, () => {
+server.listen(port, () => {
     console.log("SERVER IS RUNNING")
 })
