@@ -9,6 +9,7 @@ function Home() {
   const [socket, _] = React.useContext(SocketContext);
   const [ready, setReady] = useState(false);
   const [allReady, setAllReady] = useState(false);
+  const [lastAnsweredQuestionId, setLastAnsweredQuestionId] = useState(-1);
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -43,6 +44,7 @@ function Home() {
   };
 
   const joinRoom = (room) => {
+    setLastAnsweredQuestionId(-1);
     socket.emit('joinGame', room.id, (response) => {
       console.log(response);
     });
@@ -56,8 +58,18 @@ function Home() {
 
   const submitAnswer = () => {
     socket.emit('answer', answerText, (response) => {
+      if (response) {
+        // correct
+      } else {
+        // incorrect
+      }
+      
       console.log(response);
     });
+    setAnswerText('');
+    if (roomState) {
+      setLastAnsweredQuestionId(roomState.questionId);
+    }
   };
 
   const readyUp = () => {
@@ -229,11 +241,15 @@ function Home() {
         {roomState && allReady && (
           <div>
             <div>{roomState.name}</div>
+            <div>{roomState.players.map((o, i) => { return <div>{o.name}: {o.score}</div>; })}</div>
+            { roomState.questionMsLeft && <b><h2>{Math.ceil(roomState.questionMsLeft/1000)}</h2></b> }
             <b>{roomState.question}</b>
+            <div>{roomState.answer}</div>
             <div>
               <input
                 type='text'
                 value={answerText}
+                disabled={lastAnsweredQuestionId == roomState.questionId}
                 onInput={(e) => setAnswerText(e.target.value)}
               />
               <button type='button' onClick={submitAnswer}>
