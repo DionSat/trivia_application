@@ -8,6 +8,8 @@ const { getTriviaQuestion } = require('./jservice')
 const Pool = require('pg').Pool
 require('dotenv').config()
 
+const questionDurationMs = 10 * 1000;
+
 /**
  * A room for whole server for now
  */
@@ -35,6 +37,9 @@ const joinRoom = (socket, room) => {
     room.sockets.push(socket);
     socket.join(String(room.id));
     socket.roomId = room.id;
+    socket.answeredQuestion = false;
+    socket.answer = null;
+    socket.score = 0;
     console.log(socket.id, " Joined ", room.id);
 }
 
@@ -44,6 +49,9 @@ const joinRoom = (socket, room) => {
  * @param room that represents a room from rooms
  */
  const leaveRoom = (socket, room) => {
+    if (room == null)
+        return;
+
     let i = room.sockets.indexOf(socket);
     room.sockets.splice(i, 1);
     socket.leave(String(room.id));
@@ -51,7 +59,7 @@ const joinRoom = (socket, room) => {
     console.log(socket.id, " Left ", room.id);
 }
 
-let interval = setInterval(() => intervalTick(), 1000);
+let interval = setInterval(() => intervalTick(), 500);
 
 io.on("connection", (socket) => {
     //give each socket a random identifier
@@ -71,6 +79,37 @@ io.on("connection", (socket) => {
         console.log(socket.id, "is Ready");
     })
 
+    socket.on('answer', (answer, callback) => {
+        // don't allow answering multiple times
+        if (socket.answeredQuestion) {
+            callback(false);
+            return;
+        }
+
+        // get room
+        // if not in room or room has no active question
+        // then ignore
+        let roomId = socket.roomId;
+        let room = rooms.get(roomId);
+        if (room == null || room.activeQuestionId >= room.questions.length) {
+            callback(false);
+            return;
+        }
+        
+        let question = room.questions[room.activeQuestionId];
+
+        socket.answeredQuestion = true;
+        socket.answer = answer;
+        console.log(socket.id, "answered", answer);
+
+        if (answer.toLowerCase() == question.answer.toLowerCase()) {
+            socket.score += 1;
+            callback(true);
+        } else {
+            callback(false);
+        }
+    })
+
     /**
      * Listen when a user wants to create a room.
      * For now this will not be used.
@@ -82,6 +121,7 @@ io.on("connection", (socket) => {
             name: roomName,
             questions: [],
             activeQuestionId: 0,
+            activeQuestionStartDate: null,
             sockets: []
         };
         rooms.set(room.id, room);
@@ -157,19 +197,49 @@ const sendClientState = socket => {
 
 const sendRoomState = room => {
 
+    // 
+    let now = new Date();
+    let msLeft = null;
+    if (room.activeQuestionStartDate == null) {
+        // wait for everyone to be ready before beginning question
+        if (room.sockets.every(x => x.ready)) {
+            room.activeQuestionStartDate = now;
+        }
+    } else if ((now - room.activeQuestionStartDate) > questionDurationMs) {
+        // move to next question after duration has been met
+        room.activeQuestionStartDate = now;
+        room.activeQuestionId += 1;
+
+        // mark each player as not answered question
+        for (let i = 0; i < room.sockets.length; i++) {
+            room.sockets[i].answeredQuestion = false;
+        }
+    } else if (room.activeQuestionId >= room.questions.length) {
+        // game over
+    } else {
+        // compute ms left to answer question
+        msLeft = Math.max(0, questionDurationMs - (now - room.activeQuestionStartDate));
+    }
+
+    // grab question and answer if available
+    // answer is for debugging purposes
     let question = null;
-    if (room.activeQuestionId < room.questions.length) {
+    let answer = null;
+    if (room.activeQuestionStartDate && room.activeQuestionId < room.questions.length) {
         question = room.questions[room.activeQuestionId].question;
+        answer = room.questions[room.activeQuestionId].answer;
     }
 
     const response = {
         date: new Date(),
         name: room.name,
-        players: room.sockets.map((o, i) => { return { id: o.id, name: String(o.id), score: 0, answeredQuestion: false, ready: o.ready }; }),
-        question: question
+        players: room.sockets.map((o, i) => { return { id: o.id, name: String(o.id), score: o.score, answeredQuestion: o.answeredQuestion, ready: o.ready }; }),
+        question: question,
+        questionId: room.activeQuestionId,
+        questionMsLeft: msLeft,
+        answer: answer,
+        gameOver: room.activeQuestionId >= room.questions.length
     };
-
-    // 
 
     // Emit state to all clients in room
     room.sockets.forEach((v, k, i) => v.emit("roomState", response));
