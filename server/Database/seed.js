@@ -27,10 +27,7 @@ const appendTable = async (query) => {
     }
 };
 
-async function seed() {
-    const testUser1 = [1, 'testUser1', 0, 0]
-    const testUser2 = [2, 'testUser2', 0, 0]
-
+const seed = async () => {
     appendTable(query);
     try {
         const res = await pool.query(query2);
