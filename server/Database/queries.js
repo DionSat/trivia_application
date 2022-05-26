@@ -5,7 +5,7 @@ const getLeaderboard = (request, response) => {
         if (error) {
             throw error
         }
-        return results.rows;
+        response.status(200).json(results.rows);
     })
 }
 

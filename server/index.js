@@ -7,6 +7,7 @@ const { randomUUID } = require("crypto");
 const { getTriviaQuestion } = require('./jservice')
 const Pool = require('pg').Pool
 require('dotenv').config()
+const db = require('./Database/queries');
 
 const questionDurationMs = 10 * 1000;
 
@@ -27,6 +28,8 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 })
+
+app.get('/leaderboard', db.getLeaderboard);
 
 /***
  * Connect a socket to a specified room
