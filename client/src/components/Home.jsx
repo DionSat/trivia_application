@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SocketContext } from '../contexts/Socket/index';
+import '../assets/css/style.css';
 
 function Home() {
   const [clientState, setClientState] = useState(null);
@@ -10,6 +11,9 @@ function Home() {
   const [ready, setReady] = useState(false);
   const [allReady, setAllReady] = useState(false);
   const [lastAnsweredQuestionId, setLastAnsweredQuestionId] = useState(-1);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginFailed, setLoginFailed] = useState(false);
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -21,7 +25,7 @@ function Home() {
     socket.on('roomState', (data) => {
       console.log(data);
       setRoomState(data);
-      if(data.players.every(element => element.ready === true)) {
+      if (data.players.every((element) => element.ready === true)) {
         setAllReady(true);
       }
     });
@@ -32,6 +36,9 @@ function Home() {
       'createRoom',
       `room${Math.floor(Math.random() * 1000)}`,
       (response) => {
+        if (response) {
+          setAllReady(false);
+        }
         console.log(response);
       }
     );
@@ -47,6 +54,9 @@ function Home() {
     setLastAnsweredQuestionId(-1);
     socket.emit('joinGame', room.id, (response) => {
       console.log(response);
+      if (response) {
+        setAllReady(false);
+      }
     });
   };
 
@@ -63,7 +73,7 @@ function Home() {
       } else {
         // incorrect
       }
-      
+
       console.log(response);
     });
     setAnswerText('');
@@ -76,8 +86,16 @@ function Home() {
     setReady(true);
     socket.emit('ready', true, (response) => {
       console.log(response);
-    })
-  }
+    });
+  };
+
+  const login = (username, password) => {
+    setLoginFailed(false);
+    socket.emit('login', username, password, (response) => {
+      setLoginFailed(!response);
+      console.log(response);
+    });
+  };
 
   // const RenderRoomState = () => {
   //     if (roomState == null) {
@@ -119,7 +137,10 @@ function Home() {
     if (clientState != null && clientState.roomId === room.id) {
       return (
         <div>
-          <button type='button' onClick={() => leaveRoom()}>
+          <button
+            className='btn_stop'
+            type='button'
+            onClick={() => leaveRoom()}>
             Leave {room.name}
           </button>
         </div>
@@ -127,7 +148,10 @@ function Home() {
     } else {
       return (
         <div>
-          <button type='button' onClick={() => joinRoom(room)}>
+          <button
+            className='btn_secondary'
+            type='button'
+            onClick={() => joinRoom(room)}>
             Join {room.name}
           </button>
         </div>
@@ -150,20 +174,23 @@ function Home() {
   };
 
   const RenderLobbyState = () => {
-    if(!roomState) {
+    if (!roomState) {
       return <p></p>;
-    }
-    else {
-      return(
+    } else {
+      return (
         <div>
           {roomState.players.map((user, value) => {
-            if(user.ready === true)
+            if (user.ready === true)
               return (
-                <p className="userReady" key={value}>{user.name}</p>
+                <p className='userReady' key={value}>
+                  {user.username}
+                </p>
               );
-            else 
+            else
               return (
-                <p className="userNotReady" key={value}>{user.name}</p>
+                <p className='userNotReady' key={value}>
+                  {user.username}
+                </p>
               );
           })}
         </div>
@@ -172,67 +199,64 @@ function Home() {
 
     // roomState.players.map(function(index, value){
     //   return (
-    //     <p key={value}>{index.name}</p>
+    //     <p key={value}>{index.username}</p>
     //   )
     // })
-  }
+  };
+
+  // wait for socket connection before displaying anything
+  // maybe add a loading wheel?
+  if (clientState == null)
+    return (<div></div>);
+
+  // if not logged in then show login screen
+  if (clientState.username == null)
+    return (
+      <div className='main_container'>
+        <b><h2>Login</h2></b>
+        <input
+          type='text'
+          value={loginUsername}
+          placeholder="username"
+          onInput={(e) => setLoginUsername(e.target.value)}
+        />
+        <input
+          type='password'
+          value={loginPassword}
+          placeholder="password"
+          onInput={(e) => setLoginPassword(e.target.value)}
+        />
+        <button
+            className='btn_go'
+            type='button'
+            disabled={loginUsername == null || loginUsername == '' || loginPassword == null || loginPassword == ''}
+            onClick={() => login(loginUsername, loginPassword)}>
+            Login
+        </button>
+        {loginFailed && (
+          <h4 className='login-failed'>Login Failed</h4>
+        )}
+      </div>
+    );
 
   return (
-    <div
-      style={{
-        backgroundColor: 'white',
-        margin: 'auto',
-        width: '50%',
-        border: '6px solid blue',
-        padding: '10px',
-        textAlign: 'center',
-      }}>
+    <div className='main_container'>
       <h1>Trivia</h1>
       <RenderClientState />
       <p>
-        <button
-          style={{
-            backgroundColor: 'blue',
-            fontWeight: 'bold',
-            color: 'white',
-            padding: '5px 15px',
-            borderRadius: '5px',
-            outline: '0',
-            textTransform: 'uppercase',
-            margin: '5px',
-            cursor: 'pointer',
-            boxShadow: '0px 2px 2px lightgray',
-            transition: 'ease background-color 250ms',
-          }}
-          type='button'
-          onClick={createRoom}>
+        <button className='btn_main' type='button' onClick={createRoom}>
           Create Room
         </button>
-        <button
-          style={{
-            backgroundColor: 'blue',
-            fontWeight: 'bold',
-            color: 'white',
-            padding: '5px 15px',
-            borderRadius: '5px',
-            outline: '0',
-            textTransform: 'uppercase',
-            margin: '5px',
-            cursor: 'pointer',
-            boxShadow: '0px 2px 2px lightgray',
-            transition: 'ease background-color 250ms',
-          }}
-          type='button'
-          onClick={getRooms}>
+        <button className='btn_main' type='button' onClick={getRooms}>
           Get Rooms
         </button>
       </p>
       <div>
-        {!ready && roomState && (
+        {!clientState.ready && roomState && (
           <div>
             <div>{roomState.name}</div>
             <div>
-              <button type='button' onClick={readyUp}>
+              <button className='btn_go' type='button' onClick={readyUp}>
                 Ready
               </button>
             </div>
@@ -241,21 +265,38 @@ function Home() {
         {roomState && allReady && (
           <div>
             <div>{roomState.name}</div>
-            <div>{roomState.players.map((o, i) => { return <div>{o.name}: {o.score}</div>; })}</div>
-            { roomState.questionMsLeft && <b><h2>{Math.ceil(roomState.questionMsLeft/1000)}</h2></b> }
-            <b>{roomState.question}</b>
-            <div>{roomState.answer}</div>
             <div>
-              <input
-                type='text'
-                value={answerText}
-                disabled={lastAnsweredQuestionId == roomState.questionId}
-                onInput={(e) => setAnswerText(e.target.value)}
-              />
-              <button type='button' onClick={submitAnswer}>
-                Submit
-              </button>
+              {roomState.players.map((o, i) => {
+                return (
+                  <div>
+                    {o.username}: {o.score}
+                  </div>
+                );
+              })}
             </div>
+            {roomState.gameOver && (
+              <b>
+                <h2>Game Over!</h2>
+              </b>
+            )}
+            {!roomState.gameOver && (
+              <div>
+                <b><h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2></b>
+                <b>#{roomState.questionId+1}: {roomState.question}</b>
+                <div>{roomState.answer}</div>
+                <div>
+                  <input
+                    type='text'
+                    value={answerText}
+                    disabled={lastAnsweredQuestionId == roomState.questionId}
+                    onInput={(e) => setAnswerText(e.target.value)}
+                  />
+                  <button className='btn_go' type='button' onClick={submitAnswer}>
+                    Submit
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
