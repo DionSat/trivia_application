@@ -11,6 +11,9 @@ function Home() {
   const [ready, setReady] = useState(false);
   const [allReady, setAllReady] = useState(false);
   const [lastAnsweredQuestionId, setLastAnsweredQuestionId] = useState(-1);
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginFailed, setLoginFailed] = useState(false);
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -33,6 +36,9 @@ function Home() {
       'createRoom',
       `room${Math.floor(Math.random() * 1000)}`,
       (response) => {
+        if (response) {
+          setAllReady(false);
+        }
         console.log(response);
       }
     );
@@ -48,6 +54,9 @@ function Home() {
     setLastAnsweredQuestionId(-1);
     socket.emit('joinGame', room.id, (response) => {
       console.log(response);
+      if (response) {
+        setAllReady(false);
+      }
     });
   };
 
@@ -76,6 +85,14 @@ function Home() {
   const readyUp = () => {
     setReady(true);
     socket.emit('ready', true, (response) => {
+      console.log(response);
+    });
+  };
+
+  const login = (username, password) => {
+    setLoginFailed(false);
+    socket.emit('login', username, password, (response) => {
+      setLoginFailed(!response);
       console.log(response);
     });
   };
@@ -166,13 +183,13 @@ function Home() {
             if (user.ready === true)
               return (
                 <p className='userReady' key={value}>
-                  {user.name}
+                  {user.username}
                 </p>
               );
             else
               return (
                 <p className='userNotReady' key={value}>
-                  {user.name}
+                  {user.username}
                 </p>
               );
           })}
@@ -182,10 +199,45 @@ function Home() {
 
     // roomState.players.map(function(index, value){
     //   return (
-    //     <p key={value}>{index.name}</p>
+    //     <p key={value}>{index.username}</p>
     //   )
     // })
   };
+
+  // wait for socket connection before displaying anything
+  // maybe add a loading wheel?
+  if (clientState == null)
+    return (<div></div>);
+
+  // if not logged in then show login screen
+  if (clientState.username == null)
+    return (
+      <div className='main_container'>
+        <b><h2>Login</h2></b>
+        <input
+          type='text'
+          value={loginUsername}
+          placeholder="username"
+          onInput={(e) => setLoginUsername(e.target.value)}
+        />
+        <input
+          type='password'
+          value={loginPassword}
+          placeholder="password"
+          onInput={(e) => setLoginPassword(e.target.value)}
+        />
+        <button
+            className='btn_go'
+            type='button'
+            disabled={loginUsername == null || loginUsername == '' || loginPassword == null || loginPassword == ''}
+            onClick={() => login(loginUsername, loginPassword)}>
+            Login
+        </button>
+        {loginFailed && (
+          <h4 className='login-failed'>Login Failed</h4>
+        )}
+      </div>
+    );
 
   return (
     <div className='main_container'>
@@ -200,7 +252,7 @@ function Home() {
         </button>
       </p>
       <div>
-        {!ready && roomState && (
+        {!clientState.ready && roomState && (
           <div>
             <div>{roomState.name}</div>
             <div>
@@ -217,7 +269,7 @@ function Home() {
               {roomState.players.map((o, i) => {
                 return (
                   <div>
-                    {o.name}: {o.score}
+                    {o.username}: {o.score}
                   </div>
                 );
               })}

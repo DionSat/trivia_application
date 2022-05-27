@@ -75,7 +75,21 @@ io.on("connection", (socket) => {
     socket.on('ready', () => {
         socket.ready = true;
         console.log(socket.id, "is Ready");
-    })
+    });
+    
+
+    socket.on('login', (username, password, callback) => {
+        console.log(socket.id, "on login " + username);
+        databaseLogin(username, password, (result) => {
+            if (result.success) {
+                socket.username = result.username;
+                socket.userid = result.id;
+                callback(result.username);
+            } else {
+                callback(null);
+            }
+        });
+    });
 
     socket.on('answer', (answer, callback) => {
         // don't allow answering multiple times
@@ -133,7 +147,7 @@ io.on("connection", (socket) => {
         }
     
         joinRoom(socket, room)
-        callback();
+        callback(true);
     });
     
     /**
@@ -183,8 +197,9 @@ const intervalTick = () => {
 const sendClientState = socket => {
     const response = {
         date: new Date(),
-        username: socket.id,
-        roomId: socket.roomId
+        username: socket.username,
+        roomId: socket.roomId,
+        ready: socket.ready
     };
 
     // 
@@ -232,7 +247,7 @@ const sendRoomState = room => {
     const response = {
         date: new Date(),
         name: room.name,
-        players: room.sockets.map((o, i) => { return { id: o.id, name: String(o.id), score: o.score, answeredQuestion: o.answeredQuestion, ready: o.ready }; }),
+        players: room.sockets.map((o, i) => { return { id: o.id, username: o.username, score: o.score, answeredQuestion: o.answeredQuestion, ready: o.ready }; }),
         question: question,
         questionId: room.activeQuestionId,
         questionMsLeft: msLeft,
@@ -321,7 +336,7 @@ const setupDatabase = () => {
     }
 };
 
-//setupDatabase();
+setupDatabase();
 server.listen(4001, () => {
     console.log("SERVER IS RUNNING")
 })
