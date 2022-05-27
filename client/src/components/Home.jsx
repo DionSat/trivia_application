@@ -222,24 +222,29 @@ function Home() {
                 );
               })}
             </div>
-            {roomState.questionMsLeft && (
+            {roomState.gameOver && (
               <b>
-                <h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2>
+                <h2>Game Over!</h2>
               </b>
             )}
-            <b>{roomState.question}</b>
-            <div>{roomState.answer}</div>
-            <div>
-              <input
-                type='text'
-                value={answerText}
-                disabled={lastAnsweredQuestionId == roomState.questionId}
-                onInput={(e) => setAnswerText(e.target.value)}
-              />
-              <button className='btn_go' type='button' onClick={submitAnswer}>
-                Submit
-              </button>
-            </div>
+            {!roomState.gameOver && (
+              <div>
+                <b><h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2></b>
+                <b>#{roomState.questionId+1}: {roomState.question}</b>
+                <div>{roomState.answer}</div>
+                <div>
+                  <input
+                    type='text'
+                    value={answerText}
+                    disabled={lastAnsweredQuestionId == roomState.questionId}
+                    onInput={(e) => setAnswerText(e.target.value)}
+                  />
+                  <button className='btn_go' type='button' onClick={submitAnswer}>
+                    Submit
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

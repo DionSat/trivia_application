@@ -8,7 +8,7 @@ const { getTriviaQuestion } = require('./jservice')
 const Pool = require('pg').Pool
 require('dotenv').config()
 
-const questionDurationMs = 10 * 1000;
+const questionDurationMs = 20 * 1000;
 
 /**
  * A room for whole server for now
@@ -203,17 +203,18 @@ const sendRoomState = room => {
         if (room.sockets.every(x => x.ready)) {
             room.activeQuestionStartDate = now;
         }
+    } else if (room.activeQuestionId >= room.questions.length) {
+        // game over
     } else if ((now - room.activeQuestionStartDate) > questionDurationMs) {
         // move to next question after duration has been met
         room.activeQuestionStartDate = now;
         room.activeQuestionId += 1;
+        msLeft = questionDurationMs;
 
         // mark each player as not answered question
         for (let i = 0; i < room.sockets.length; i++) {
             room.sockets[i].answeredQuestion = false;
         }
-    } else if (room.activeQuestionId >= room.questions.length) {
-        // game over
     } else {
         // compute ms left to answer question
         msLeft = Math.max(0, questionDurationMs - (now - room.activeQuestionStartDate));
