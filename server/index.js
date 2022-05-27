@@ -31,6 +31,10 @@ const io = new Server(server, {
 
 app.get('/leaderboard', db.getLeaderboard);
 
+app.get('/leaderboard/accuracy', db.getLeaderboardByAccuracy);
+
+app.get('/leaderboard/total', db.getLeaderboardByTotal);
+
 /***
  * Connect a socket to a specified room
  * @param connected socket.io socket

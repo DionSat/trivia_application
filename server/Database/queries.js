@@ -9,6 +9,24 @@ const getLeaderboard = (request, response) => {
     })
 }
 
+const getLeaderboardByAccuracy = (request, response) => {
+    pool.query('SELECT * FROM leaderboard ORDER BY accuracy DESC', (error, results) => {
+        if (error) {
+            throw error
+        }
+        response.status(200).json(results.rows);
+    })
+}
+
+const getLeaderboardByTotal = (request, response) => {
+    pool.query('SELECT * FROM leaderboard ORDER BY answerscorrect DESC', (error, results) => {
+        if (error) {
+            throw error
+        }
+        response.status(200).json(results.rows);
+    })
+}
+
 const getUser = (user) => {
     pool.query('SELECT * FROM leaderboard WHERE username = $1', [user], (error, results) => {
         if (error) {
@@ -44,5 +62,7 @@ module.exports = {
     getLeaderboard,
     getUser,
     createUser,
-    updateLeaderboard
+    updateLeaderboard,
+    getLeaderboardByAccuracy,
+    getLeaderboardByTotal
 }
