@@ -6,6 +6,8 @@ const cors = require("cors");
 const { randomUUID } = require("crypto");
 const { getTriviaQuestion } = require('./jservice')
 const Pool = require('pg').Pool
+var pbkdf2 = require('pbkdf2')
+var crypto = require('crypto');
 require('dotenv').config()
 
 const questionDurationMs = 20 * 1000;
@@ -284,6 +286,22 @@ const getDatabaseGames = (callback) => {
     }
 }
 
+function hashPassword(password) {
+    var salt = crypto.randomBytes(128).toString('base64');
+    var iterations = 10000;
+    var hash = pbkdf2.pbkdf2Sync(password, salt, iterations, 64, 'sha512').toString('hex');
+
+    return {
+        salt: salt,
+        hash: hash,
+        iterations: iterations
+    };
+}
+
+function isPasswordCorrect(savedHash, savedSalt, savedIterations, passwordAttempt) {
+    return savedHash == pbkdf2.pbkdf2Sync(passwordAttempt, savedSalt, savedIterations, 64, 'sha512').toString('hex');
+}
+
 const databaseLogin = (username, password, callback) => {
     if (!username || !password) {
         return new Error('Authorization failed, no user/pass has been provided!');
@@ -297,15 +315,23 @@ const databaseLogin = (username, password, callback) => {
 
         // create user if doesn't exist
         if (results.rowCount == 0) {
-            pool.query('INSERT INTO users (USERNAME, PASSWORD) VALUES ($1, $2);', [username, password], (error, results) => {
+            pwHash = hashPassword(password);
+            pool.query('INSERT INTO users (USERNAME, PASSWORD, SALT, ITERATIONS) VALUES ($1, $2, $3, $4);', [username, pwHash.hash, pwHash.salt, pwHash.iterations], (error, results) => {
                 if (error) {
                     throw error;
                 }
 
-                callback({id: results.rows[0].id, username: results.rows[0].username, success: true });
+                // get newly inserted row
+                pool.query('SELECT * FROM users WHERE LOWER(USERNAME) = LOWER($1);', [username], (error, results) => {
+                    if (error) {
+                        throw error;
+                    }
+
+                    callback({id: results.rows[0].id, username: results.rows[0].username, success: true });
+                });
             });
         }
-        else if (results.rows[0].password == password) {
+        else if (isPasswordCorrect(results.rows[0].password, results.rows[0].salt, results.rows[0].iterations, password)) {
             callback({id: results.rows[0].id, username: results.rows[0].username, success: true });
         }
         else {
@@ -319,11 +345,11 @@ const setupDatabase = () => {
         const pool = getDatabasePool();
 
         // create users table
-        pool.query('CREATE TABLE IF NOT EXISTS users(ID INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, USERNAME VARCHAR(100) NOT NULL, PASSWORD VARCHAR(1024) NOT NULL);', (error, results) => {
-                if (error) {
-                    throw error;
-                }
-            });
+        pool.query('CREATE TABLE IF NOT EXISTS users(ID INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, USERNAME VARCHAR(100) NOT NULL, PASSWORD VARCHAR(1024) NOT NULL, SALT VARCHAR(256) NOT NULL, ITERATIONS INT NOT NULL);', (error, results) => {
+            if (error) {
+                throw error;
+            }
+        });
 
         // create rooms table
         pool.query('CREATE TABLE IF NOT EXISTS games(ID INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY, NAME VARCHAR(100) NOT NULL, CLOSED BOOLEAN NOT NULL);', (error, results) => {
