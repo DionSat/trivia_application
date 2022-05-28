@@ -11,7 +11,7 @@ var crypto = require('crypto');
 require('dotenv').config()
 const db = require('./Database/queries');
 
-const questionDurationMs = 5 * 1000;
+const questionDurationMs = 20 * 1000;
 
 /**
  * A room for whole server for now
@@ -87,12 +87,6 @@ io.on("connection", (socket) => {
         socket.ready = true;
         console.log(socket.id, "is Ready");
     });
-
-    socket.on('resetGame', () => {
-        socket.ready = false;
-        socket.score = 0;
-    });
-    
 
     socket.on('login', (username, password, callback) => {
         console.log(socket.id, "on login " + username);
@@ -236,7 +230,14 @@ const sendRoomState = room => {
         }
     } else if (room.activeQuestionId >= room.questions.length) {
         // game over
-        // reset game
+        //update player stats and reset user socket
+        room.sockets.forEach (user => {
+            console.log(user.score);
+            db.updateLeaderboard(user.username, user.score, room.questions.length);
+            user.score = 0;
+            user.ready = false;
+        })
+        // reset room
         room.activeQuestionId = 0; 
         room.activeQuestionStartDate = null;
         room.questions = [];

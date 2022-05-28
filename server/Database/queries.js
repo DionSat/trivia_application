@@ -36,26 +36,45 @@ const getUser = (user) => {
     })
 }
 
-const createUser = (username) => {
-    pool.query('INSERT INTO leaderboard (id, username, answerscorrect, accuracy) VALUES ($1, $2, $3, $4)', [name, email], (error, results) => {
+const createUser = (name, correct, total) => {
+    let accuracy = (correct / total).toFixed(2);
+    pool.query('INSERT INTO leaderboard (username, answerscorrect, totalanswered, accuracy) VALUES ($1, $2, $3, $4)', [name, correct, total, accuracy], (error, results) => {
         if (error) {
             throw error
         }
-        console.log(`User added with ID: ${result.insertId}`);
+        console.log(`User ${name} added`);
     })
 }
 
-const updateLeaderboard = (request, response) => {
-    pool.query(
-      'UPDATE leaderboard SET name = $1, email = $2 WHERE id = $3',
-      [name, email, id],
-      (error, results) => {
+const updateLeaderboard = (name, count_correct, total_questions) => {
+    let total = 0;
+    let correct = 0;
+    let accuracy = 0.00;
+    pool.query('SELECT * FROM leaderboard WHERE username = $1', [name], (error, results) => {
         if (error) {
-          throw error
+            throw error;
         }
-        response.status(200).send(`User modified with ID: ${id}`)
-      }
-    )
+        //if user not in leaderboard
+        if (results.rows.length === 0) {
+            createUser(name, count_correct, total_questions);
+        }
+        //if user in the table
+        else {
+            total = results.rows[0].totalanswered + total_questions;
+            correct = results.rows[0].answerscorrect + count_correct;
+            accuracy = (correct / total).toFixed(2);
+            pool.query(
+                'UPDATE leaderboard SET totalanswered = $1, answerscorrect = $2, accuracy = $3 WHERE username = $4',
+                [total, correct, accuracy, name],
+                (error, results) => {
+                    if (error) {
+                        throw error
+                    }
+                    console.log(`User ${name} successfully updated on leaderboard`);
+                
+            })
+        }
+    })
 }
 
 module.exports = {

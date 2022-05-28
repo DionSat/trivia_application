@@ -4,16 +4,17 @@ const query = `
     DROP TABLE IF EXISTS leaderboard;
 
     CREATE TABLE leaderboard (
-        id INTEGER NOT NULL,
+        id INT GENERATED ALWAYS AS IDENTITY,
         username VARCHAR(255),
         answerscorrect INTEGER NOT NULL,
+        totalanswered INTEGER NOT NULL,
         accuracy DECIMAL(5,2) CHECK (accuracy <= 1),
         PRIMARY KEY (id)
     );`;
 
 const query2 = `
-    INSERT INTO leaderboard VALUES (1, 'testUser1', 10, 0);
-    INSERT INTO leaderboard VALUES (2, 'testUser2', 0, .1);
+    INSERT INTO leaderboard (username, answerscorrect, totalanswered, accuracy) VALUES ('testUser1', 10, 10, 0);
+    INSERT INTO leaderboard (username, answerscorrect, totalanswered, accuracy) VALUES ('testUser2', 1, 10, .1);
     `;
 
 const appendTable = async (query) => {
