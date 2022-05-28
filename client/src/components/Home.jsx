@@ -36,9 +36,6 @@ function Home() {
       if(roomState.gameOver === true) {
         setReady(false);
         setAllReady(false);
-        socket.emit('resetGame', false, (response) => {
-          console.log(response);
-        });
       }
     }
   }, [roomState])

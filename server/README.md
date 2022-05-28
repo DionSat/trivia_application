@@ -4,6 +4,10 @@ Install all dependencies using
 To start the server run
 ### `node index.js`
 
+or 
+
+### `npm start`
+
 ### Database Setup
 
 1. Download and install postgres from [here](https://www.postgresql.org/download/).
