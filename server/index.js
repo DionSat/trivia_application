@@ -237,7 +237,7 @@ const sendRoomState = room => {
             user.score = 0;
             user.ready = false;
         })
-        // reset room
+        // reset game
         room.activeQuestionId = 0; 
         room.activeQuestionStartDate = null;
         room.questions = [];
