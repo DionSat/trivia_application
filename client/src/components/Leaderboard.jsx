@@ -23,62 +23,83 @@ function Leaderboard() {
         </div>
       )
     }
-    
-    const ColumnHeader = ({
-      onClick,
-      onClickAll
-    }) => (
-      <div className="row colheader">
-          <div className="col-xs-1">
-            <h4>Rank</h4>
-          </div>
-          <div className="col-xs-5">
-            <h4>Username</h4>
-          </div>
-          <div className="col-xs-3 recent">
-            <h4>Total Correct Answers</h4>
-          </div>
-          <div className="col-xs-3 alltime">
-            <h4>Accuracy</h4>
-          </div>
-        </div>
-    );
 
-    const User = () => {
-      return(
-          <>
-            {
-              leaderboard.map((value, index) => (
-                  <div className="row users vcenter" key={index}>
-                      <div className="col-xs-1 rank">
-                        <h4> {value.id} </h4>
-                      </div>
-                      <div className="col-xs-1 username">
-                        <h4> {value.username} </h4>
-                      </div>
-                      <div className="col-xs-1 correct-answers">
-                        <h4> {value.answerscorrect} </h4>
-                      </div>
-                      <div className="col-xs-1 accuracy">
-                        <h4> {value.accuracy} </h4>
-                      </div>
-                  </div>
-                  )
-              )
-          }
-        </>
-      )
+    const getByAccuracy = () => {
+      fetch('http://127.0.0.1:4001/leaderboard/accuracy')
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            setLeaderboard(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });  
+    }
+
+    const getByAnswers = () => {
+      fetch('http://127.0.0.1:4001/leaderboard/total')
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            setLeaderboard(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });  
     }
 
     return (
       <>
-        {leaderboard && (
-          <div className="container">
-              <LeaderboardHeader />
-              <ColumnHeader />
-              <User />
+          <div className='container'>
+            <LeaderboardHeader />
+            <table className="table table-striped" data-testid="leaderboard-table">
+              <thead>
+                <tr key="head">
+                  <th>
+                    <button className="btn shadow-none">
+                      <h5>Rank</h5>
+                    </button>
+                  </th>
+                  <th>
+                    <button className="btn shadow-none">
+                      <h5>Username</h5>
+                    </button>
+                  </th>
+                  <th>
+                    <button className="btn shadow-none" onClick={getByAnswers}>
+                      <h5>Total Correct Answers</h5>
+                    </button>
+                  </th>
+                  <th>
+                    <button className="btn shadow-none" onClick={getByAccuracy}>
+                      <h5>Accuracy</h5>
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard && (
+                  leaderboard.map((value, index) => (
+                    <tr>
+                        <td className="rank">
+                          {value.id}
+                        </td>
+                        <td className="username">
+                          {value.username}
+                        </td>
+                        <td className="correct-answers">
+                          {value.answerscorrect}
+                        </td>
+                        <td className="accuracy">
+                          {value.accuracy * 100 + '%'}
+                        </td>
+                    </tr>
+                    )
+                  )
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
       </>
     )
 }

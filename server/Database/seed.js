@@ -12,8 +12,8 @@ const query = `
     );`;
 
 const query2 = `
-    INSERT INTO leaderboard VALUES (1, 'testUser1', 0, 0);
-    INSERT INTO leaderboard VALUES (2, 'testUser2', 0, 0);
+    INSERT INTO leaderboard VALUES (1, 'testUser1', 10, 0);
+    INSERT INTO leaderboard VALUES (2, 'testUser2', 0, .1);
     `;
 
 const appendTable = async (query) => {
@@ -28,7 +28,7 @@ const appendTable = async (query) => {
 };
 
 const seed = async () => {
-    appendTable(query);
+    await appendTable(query);
     try {
         const res = await pool.query(query2);
         console.log(`Added test users`);

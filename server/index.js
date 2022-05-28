@@ -11,7 +11,7 @@ var crypto = require('crypto');
 require('dotenv').config()
 const db = require('./Database/queries');
 
-const questionDurationMs = 20 * 1000;
+const questionDurationMs = 5 * 1000;
 
 /**
  * A room for whole server for now
@@ -86,6 +86,11 @@ io.on("connection", (socket) => {
     socket.on('ready', () => {
         socket.ready = true;
         console.log(socket.id, "is Ready");
+    });
+
+    socket.on('resetGame', () => {
+        socket.ready = false;
+        socket.score = 0;
     });
     
 
@@ -231,6 +236,17 @@ const sendRoomState = room => {
         }
     } else if (room.activeQuestionId >= room.questions.length) {
         // game over
+        // reset game
+        room.activeQuestionId = 0; 
+        room.activeQuestionStartDate = null;
+        room.questions = [];
+        for (let i = 0; i < 10; i++) {
+            getTriviaQuestion((success, response) => {
+                if (success) {
+                    room.questions.push({ question: response.question, answer: response.answer });
+                }
+            });
+        }
     } else if ((now - room.activeQuestionStartDate) > questionDurationMs) {
         // move to next question after duration has been met
         room.activeQuestionStartDate = now;

@@ -31,6 +31,18 @@ function Home() {
     });
   }, []);
 
+  useEffect(() => {
+    if(roomState) {
+      if(roomState.gameOver === true) {
+        setReady(false);
+        setAllReady(false);
+        socket.emit('resetGame', false, (response) => {
+          console.log(response);
+        });
+      }
+    }
+  }, [roomState])
+
   const createRoom = () => {
     socket.emit(
       'createRoom',
@@ -96,23 +108,6 @@ function Home() {
       console.log(response);
     });
   };
-
-  // const RenderRoomState = () => {
-  //     if (roomState == null) {
-  //         return (<div></div>);
-  //     } else {
-  //         return (
-  //             <div>
-  //                 <div>{roomState.name}</div>
-  //                 <b>{roomState.question}</b>
-  //                 <div>
-  //                     <input type="text" value={answerText} onInput={(e) => setAnswerText(e.target.value)} />
-  //                     <button type="button" onClick={submitAnswer}>Submit</button>
-  //                 </div>
-  //             </div>
-  //         );
-  //     }
-  // };
 
   const RenderClientState = () => {
     if (clientState == null) {
@@ -196,12 +191,6 @@ function Home() {
         </div>
       );
     }
-
-    // roomState.players.map(function(index, value){
-    //   return (
-    //     <p key={value}>{index.username}</p>
-    //   )
-    // })
   };
 
   // wait for socket connection before displaying anything
