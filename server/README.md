@@ -10,7 +10,7 @@ To start the server run
 2. Make a copy of the [.env.sample](../.env.sample) and rename it to ```.env```.
 3. Edit the variables in your ```.env``` file to match your postgres installation configuration.
 
-in the server dictory run
+in the server directory run
 ### `npm run seed`
 
 to intially seed the leaderboard database
