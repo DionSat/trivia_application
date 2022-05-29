@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { SocketContext } from '../contexts/Socket/index';
 import '../assets/css/style.css';
+import { Link } from 'react-router-dom';
+import Navbar from './navbar';
+import '../assets/css/navbar.css';
 
 function Home() {
   const [clientState, setClientState] = useState(null);
@@ -32,13 +35,13 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if(roomState) {
-      if(roomState.gameOver === true) {
+    if (roomState) {
+      if (roomState.gameOver === true) {
         setReady(false);
         setAllReady(false);
       }
     }
-  }, [roomState])
+  }, [roomState]);
 
   const createRoom = () => {
     socket.emit(
@@ -111,9 +114,10 @@ function Home() {
       return <p></p>;
     } else {
       return (
-        <p>
+        <p style={{ marginTop: '10px' }}>
           <span style={{ fontWeight: 'bold' }}>Hello:</span>{' '}
-          {clientState.username},<br></br>
+          {clientState.username}
+          <br></br>
           <span style={{ fontWeight: 'bold' }}>It's:</span>{' '}
           <time dateTime={clientState.date}>{clientState.date}</time>
           <br></br>
@@ -192,42 +196,46 @@ function Home() {
 
   // wait for socket connection before displaying anything
   // maybe add a loading wheel?
-  if (clientState == null)
-    return (<div></div>);
+  if (clientState == null) return <div></div>;
 
   // if not logged in then show login screen
   if (clientState.username == null)
     return (
       <div className='main_container'>
-        <b><h2>Login</h2></b>
+        <b>
+          <h2>Login</h2>
+        </b>
         <input
           type='text'
           value={loginUsername}
-          placeholder="username"
+          placeholder='username'
           onInput={(e) => setLoginUsername(e.target.value)}
         />
         <input
           type='password'
           value={loginPassword}
-          placeholder="password"
+          placeholder='password'
           onInput={(e) => setLoginPassword(e.target.value)}
         />
         <button
-            className='btn_go'
-            type='button'
-            disabled={loginUsername == null || loginUsername == '' || loginPassword == null || loginPassword == ''}
-            onClick={() => login(loginUsername, loginPassword)}>
-            Login
+          className='btn_go'
+          type='button'
+          disabled={
+            loginUsername == null ||
+            loginUsername == '' ||
+            loginPassword == null ||
+            loginPassword == ''
+          }
+          onClick={() => login(loginUsername, loginPassword)}>
+          Login
         </button>
-        {loginFailed && (
-          <h4 className='login-failed'>Login Failed</h4>
-        )}
+        {loginFailed && <h4 className='login-failed'>Login Failed</h4>}
       </div>
     );
 
   return (
     <div className='main_container'>
-      <h1>Trivia</h1>
+      <Navbar />
       <RenderClientState />
       <p>
         <button className='btn_main' type='button' onClick={createRoom}>
@@ -267,8 +275,12 @@ function Home() {
             )}
             {!roomState.gameOver && (
               <div>
-                <b><h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2></b>
-                <b>#{roomState.questionId+1}: {roomState.question}</b>
+                <b>
+                  <h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2>
+                </b>
+                <b>
+                  #{roomState.questionId + 1}: {roomState.question}
+                </b>
                 <div>{roomState.answer}</div>
                 <div>
                   <input
@@ -277,7 +289,10 @@ function Home() {
                     disabled={lastAnsweredQuestionId == roomState.questionId}
                     onInput={(e) => setAnswerText(e.target.value)}
                   />
-                  <button className='btn_go' type='button' onClick={submitAnswer}>
+                  <button
+                    className='btn_go'
+                    type='button'
+                    onClick={submitAnswer}>
                     Submit
                   </button>
                 </div>
