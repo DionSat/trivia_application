@@ -389,6 +389,7 @@ const setupDatabase = () => {
 };
 
 setupDatabase();
+db.setupLeaderboardTable();
 server.listen(port, () => {
     console.log("SERVER IS RUNNING")
 })

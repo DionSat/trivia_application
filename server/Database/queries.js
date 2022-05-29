@@ -77,11 +77,31 @@ const updateLeaderboard = (name, count_correct, total_questions) => {
     })
 }
 
+const query = `
+    CREATE TABLE IF NOT EXISTS leaderboard (
+        id INT GENERATED ALWAYS AS IDENTITY,
+        username VARCHAR(255),
+        answerscorrect INTEGER NOT NULL,
+        totalanswered INTEGER NOT NULL,
+        accuracy DECIMAL(5,2) CHECK (accuracy <= 1),
+        PRIMARY KEY (id)
+    );`;
+
+const setupLeaderboardTable = async () => {
+    try {
+        await pool.query(query);  // sends queries
+        console.log("Setup Leaderboard Table");
+    } catch (error) {
+        console.error(error.stack);
+    }
+};
+
 module.exports = {
     getLeaderboard,
     getUser,
     createUser,
     updateLeaderboard,
     getLeaderboardByAccuracy,
-    getLeaderboardByTotal
+    getLeaderboardByTotal,
+    setupLeaderboardTable
 }
