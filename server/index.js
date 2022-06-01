@@ -296,14 +296,34 @@ const compareQuizAnswer = (answer, guess) => {
 
     // make lowercase
     answer = answer.toLowerCase();
+    guess = guess.toLowerCase();
 
-    // remove filler words
-    for (let i in fillerWords)
-        answer = answer.replace(fillerWords[i], "");
+    // if they already match return true
+    if (answer == guess)
+        return true;
 
     // break into words
     let answerWords = answer.trim().split(/\s+/);
-    let guessWords = guess.toLowerCase().trim().split(/\s+/);
+    let guessWords = guess.trim().split(/\s+/);
+
+    // remove filler words
+    for (let i in fillerWords) {
+        // remove from answer
+        let idx = answerWords.indexOf(fillerWords[i]);
+        while (idx >= 0) {
+            answerWords.splice(idx, 1);
+            idx = answerWords.indexOf(fillerWords[i]);
+        }
+
+        // remove from guess so that they don't count towards the incorrect word tally
+        idx = guessWords.indexOf(fillerWords[i]);
+        while (idx >= 0) {
+            guessWords.splice(idx, 1);
+            idx = guessWords.indexOf(fillerWords[i]);
+        }
+    }
+
+    // 
     let correctWords = 0;
     let incorrectWords = 0;
     let totalWords = parseFloat(answerWords.length);
