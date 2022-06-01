@@ -4,6 +4,8 @@ import '../assets/css/style.css';
 import { Link } from 'react-router-dom';
 import Navbar from './navbar';
 import '../assets/css/navbar.css';
+import { ToastContainer } from "react-bootstrap";
+import Toasts from './Toast';
 
 function Home() {
   const [clientState, setClientState] = useState(null);
@@ -17,6 +19,9 @@ function Home() {
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginFailed, setLoginFailed] = useState(false);
+  const [inLobby, setInLobby] = useState(false);
+  const [show, setShow] = React.useState(false);
+  const [message, setMessage] = React.useState("");
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -32,6 +37,11 @@ function Home() {
         setAllReady(true);
       }
     });
+
+    socket.on('gameInProgress', () => {
+      setShow(true);
+      setMessage(`Cannot join, game already in progress`);
+    })
   }, []);
 
   useEffect(() => {
@@ -39,6 +49,7 @@ function Home() {
       if (roomState.gameOver === true) {
         setReady(false);
         setAllReady(false);
+        setInLobby(true);
       }
     }
   }, [roomState]);
@@ -54,6 +65,7 @@ function Home() {
         console.log(response);
       }
     );
+    setInLobby(true);
   };
 
   const getRooms = () => {
@@ -70,12 +82,15 @@ function Home() {
         setAllReady(false);
       }
     });
+    setInLobby(true);
+    setRooms(null);
   };
 
   const leaveRoom = () => {
     socket.emit('leaveGame', (response) => {
       console.log(response);
     });
+    setInLobby(false);
   };
 
   const submitAnswer = () => {
@@ -145,7 +160,7 @@ function Home() {
   };
 
   const RenderRoomInfos = () => {
-    if (rooms == null && !allReady) {
+    if (rooms == null) {
       return <p></p>;
     } else {
       return (
@@ -224,6 +239,11 @@ function Home() {
 
   return (
     <div className='main_container'>
+      <ToastContainer
+        className='position-absolute shrink-toast p-4'
+        position='top-center'>
+        <Toasts message={message} show={show} setShow={setShow} />
+      </ToastContainer>
       <Navbar />
       <RenderClientState />
       {!roomState && (

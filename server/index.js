@@ -43,14 +43,18 @@ app.get('/leaderboard/total', db.getLeaderboardByTotal);
  * @param object that represents a room from rooms
  */
 const joinRoom = (socket, room) => {
-    leaveRoom(socket, room);
-    room.sockets.push(socket);
-    socket.join(String(room.id));
-    socket.roomId = room.id;
-    socket.answeredQuestion = false;
-    socket.answer = null;
-    socket.score = 0;
-    console.log(socket.id, " Joined ", room.id);
+    if(room.activeQuestionStartDate == null) {
+        room.sockets.push(socket);
+        socket.join(String(room.id));
+        socket.roomId = room.id;
+        socket.answeredQuestion = false;
+        socket.answer = null;
+        socket.score = 0;
+        console.log(socket.id, " Joined ", room.id);
+    }
+    else {
+        socket.emit('gameInProgress')
+    }
 }
 
 /***
@@ -59,7 +63,7 @@ const joinRoom = (socket, room) => {
  * @param room that represents a room from rooms
  */
  const leaveRoom = (socket, room) => {
-    if (room == null || rooms == null)
+    if (room == null)
         return;
     let i = room.sockets.indexOf(socket);
     room.sockets.splice(i, 1);
@@ -67,6 +71,18 @@ const joinRoom = (socket, room) => {
     socket.roomId = null;
     console.log(socket.id, " Left ", room.id);
     socket.ready = false;
+    if(room.sockets.length === 0) {
+        room.activeQuestionId = 0;
+        room.activeQuestionStartDate = null;
+        room.questions = [];
+        for (let i = 0; i < 10; i++) {
+            getTriviaQuestion((success, response) => {
+                if (success) {
+                    room.questions.push({ question: response.question, answer: response.answer });
+                }
+            });
+        }
+    }
 }
 
 let interval = setInterval(() => intervalTick(), 500);
@@ -224,15 +240,9 @@ const sendRoomState = room => {
     // 
     let now = new Date();
     let msLeft = null;
-    //if everyone leaves the room reset the room
-    if(room.sockets.length === 0) {
-        room.activeQuestionId = 0; 
-        room.activeQuestionStartDate = null;
-        room.questions = [];
-    }
     if (room.activeQuestionStartDate == null) {
         // wait for everyone to be ready before beginning question
-        if (room.sockets.every(x => x.ready)) {
+        if (room.sockets.every(x => x.ready) && room.sockets.length !== 0) {
             room.activeQuestionStartDate = now;
         }
     } else if (room.activeQuestionId >= room.questions.length) {
