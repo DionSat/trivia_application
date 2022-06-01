@@ -224,6 +224,12 @@ const sendRoomState = room => {
     // 
     let now = new Date();
     let msLeft = null;
+    //if everyone leaves the room reset the room
+    if(room.sockets.length === 0) {
+        room.activeQuestionId = 0; 
+        room.activeQuestionStartDate = null;
+        room.questions = [];
+    }
     if (room.activeQuestionStartDate == null) {
         // wait for everyone to be ready before beginning question
         if (room.sockets.every(x => x.ready)) {
