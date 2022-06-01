@@ -130,18 +130,7 @@ function Home() {
 
   const RenderJoinRoom = (params) => {
     let { room } = params;
-    if (clientState != null && clientState.roomId === room.id) {
-      return (
-        <div>
-          <button
-            className='btn_stop'
-            type='button'
-            onClick={() => leaveRoom()}>
-            Leave {room.name}
-          </button>
-        </div>
-      );
-    } else {
+    if (clientState != null && clientState.roomId !== room.id && !roomState) {
       return (
         <div>
           <button
@@ -156,7 +145,7 @@ function Home() {
   };
 
   const RenderRoomInfos = () => {
-    if (rooms == null) {
+    if (rooms == null && !allReady) {
       return <p></p>;
     } else {
       return (
@@ -237,14 +226,16 @@ function Home() {
     <div className='main_container'>
       <Navbar />
       <RenderClientState />
-      <p>
-        <button className='btn_main' type='button' onClick={createRoom}>
-          Create Room
-        </button>
-        <button className='btn_main' type='button' onClick={getRooms}>
-          Get Rooms
-        </button>
-      </p>
+      {!roomState && (
+        <p>
+          <button className='btn_main' type='button' onClick={createRoom}>
+            Create Room
+          </button>
+          <button className='btn_main' type='button' onClick={getRooms}>
+            Get Rooms
+          </button>
+        </p>
+      )}
       <div>
         {!clientState.ready && roomState && (
           <div>
@@ -303,6 +294,18 @@ function Home() {
       </div>
       <div>
         <RenderRoomInfos />
+        {!allReady && roomState && (
+          <>
+            <div>
+              <button
+                className='btn_stop'
+                type='button'
+                onClick={() => leaveRoom()}>
+                Leave {roomState.name}
+              </button>
+            </div>
+          </>
+        )}
         <RenderLobbyState />
       </div>
     </div>

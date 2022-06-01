@@ -43,6 +43,7 @@ app.get('/leaderboard/total', db.getLeaderboardByTotal);
  * @param object that represents a room from rooms
  */
 const joinRoom = (socket, room) => {
+    leaveRoom(socket, room);
     room.sockets.push(socket);
     socket.join(String(room.id));
     socket.roomId = room.id;
@@ -58,14 +59,14 @@ const joinRoom = (socket, room) => {
  * @param room that represents a room from rooms
  */
  const leaveRoom = (socket, room) => {
-    if (room == null)
+    if (room == null || rooms == null)
         return;
-
     let i = room.sockets.indexOf(socket);
     room.sockets.splice(i, 1);
     socket.leave(String(room.id));
     socket.roomId = null;
     console.log(socket.id, " Left ", room.id);
+    socket.ready = false;
 }
 
 let interval = setInterval(() => intervalTick(), 500);
@@ -155,7 +156,7 @@ io.on("connection", (socket) => {
                 }
             });
         }
-    
+        console.log('Room: ' + rooms);
         joinRoom(socket, room)
         callback(true);
     });
