@@ -80,7 +80,7 @@ const joinRoom = (socket, room) => {
         for (let i = 0; i < 10; i++) {
             getTriviaQuestion((success, response) => {
                 if (success) {
-                    room.questions.push({ question: response.question, answer: response.answer });
+                    room.questions.push({ question: response.question, answer: response.answer, category: response.category  });
                 }
             });
         }
@@ -170,7 +170,7 @@ io.on("connection", (socket) => {
         for (let i = 0; i < 10; i++) {
             getTriviaQuestion((success, response) => {
                 if (success) {
-                    room.questions.push({ question: response.question, answer: response.answer });
+                    room.questions.push({ question: response.question, answer: response.answer, category: response.category });
                 }
             });
         }
@@ -263,7 +263,7 @@ const sendRoomState = room => {
         for (let i = 0; i < 10; i++) {
             getTriviaQuestion((success, response) => {
                 if (success) {
-                    room.questions.push({ question: response.question, answer: response.answer });
+                    room.questions.push({ question: response.question, answer: response.answer, category: response.category  });
                 }
             });
         }
@@ -286,9 +286,11 @@ const sendRoomState = room => {
     // answer is for debugging purposes
     let question = null;
     let answer = null;
+    let category = null;
     if (room.activeQuestionStartDate && room.activeQuestionId < room.questions.length) {
         question = room.questions[room.activeQuestionId].question;
         answer = room.questions[room.activeQuestionId].answer;
+        category = room.questions[room.activeQuestionId].category;
     }
 
     const response = {
@@ -299,6 +301,7 @@ const sendRoomState = room => {
         questionId: room.activeQuestionId,
         questionMsLeft: msLeft,
         answer: answer,
+        category: category,
         gameOver: room.activeQuestionId >= room.questions.length
     };
 

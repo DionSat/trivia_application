@@ -289,6 +289,9 @@ function Home() {
                 <b>
                   <h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2>
                 </b>
+                <p>
+                  Category: {roomState.category.title}
+                </p>
                 <b>
                   #{roomState.questionId + 1}: {roomState.question}
                 </b>
