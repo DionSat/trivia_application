@@ -4,6 +4,8 @@ import '../assets/css/style.css';
 import { Link } from 'react-router-dom';
 import Navbar from './navbar';
 import '../assets/css/navbar.css';
+import { ToastContainer } from "react-bootstrap";
+import Toasts from './Toast';
 
 function Home() {
   const [clientState, setClientState] = useState(null);
@@ -17,6 +19,9 @@ function Home() {
   const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginFailed, setLoginFailed] = useState(false);
+  const [inLobby, setInLobby] = useState(false);
+  const [show, setShow] = React.useState(false);
+  const [message, setMessage] = React.useState("");
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -32,6 +37,11 @@ function Home() {
         setAllReady(true);
       }
     });
+
+    socket.on('gameInProgress', () => {
+      setShow(true);
+      setMessage(`Cannot join, game already in progress`);
+    })
   }, []);
 
   useEffect(() => {
@@ -39,6 +49,7 @@ function Home() {
       if (roomState.gameOver === true) {
         setReady(false);
         setAllReady(false);
+        setInLobby(true);
       }
     }
   }, [roomState]);
@@ -54,6 +65,7 @@ function Home() {
         console.log(response);
       }
     );
+    setInLobby(true);
   };
 
   const getRooms = () => {
@@ -70,12 +82,15 @@ function Home() {
         setAllReady(false);
       }
     });
+    setInLobby(true);
+    setRooms(null);
   };
 
   const leaveRoom = () => {
     socket.emit('leaveGame', (response) => {
       console.log(response);
     });
+    setInLobby(false);
   };
 
   const submitAnswer = () => {
@@ -130,18 +145,7 @@ function Home() {
 
   const RenderJoinRoom = (params) => {
     let { room } = params;
-    if (clientState != null && clientState.roomId === room.id) {
-      return (
-        <div>
-          <button
-            className='btn_stop'
-            type='button'
-            onClick={() => leaveRoom()}>
-            Leave {room.name}
-          </button>
-        </div>
-      );
-    } else {
+    if (clientState != null && clientState.roomId !== room.id && !roomState) {
       return (
         <div>
           <button
@@ -235,16 +239,23 @@ function Home() {
 
   return (
     <div className='main_container'>
+      <ToastContainer
+        className='position-absolute shrink-toast p-4'
+        position='top-center'>
+        <Toasts message={message} show={show} setShow={setShow} />
+      </ToastContainer>
       <Navbar />
       <RenderClientState />
-      <p>
-        <button className='btn_main' type='button' onClick={createRoom}>
-          Create Room
-        </button>
-        <button className='btn_main' type='button' onClick={getRooms}>
-          Get Rooms
-        </button>
-      </p>
+      {!roomState && (
+        <p>
+          <button className='btn_main' type='button' onClick={createRoom}>
+            Create Room
+          </button>
+          <button className='btn_main' type='button' onClick={getRooms}>
+            Get Rooms
+          </button>
+        </p>
+      )}
       <div>
         {!clientState.ready && roomState && (
           <div>
@@ -278,6 +289,9 @@ function Home() {
                 <b>
                   <h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2>
                 </b>
+                <p>
+                  Category: {roomState.category.title}
+                </p>
                 <b>
                   #{roomState.questionId + 1}: {roomState.question}
                 </b>
@@ -303,6 +317,18 @@ function Home() {
       </div>
       <div>
         <RenderRoomInfos />
+        {!allReady && roomState && (
+          <>
+            <div>
+              <button
+                className='btn_stop'
+                type='button'
+                onClick={() => leaveRoom()}>
+                Leave {roomState.name}
+              </button>
+            </div>
+          </>
+        )}
         <RenderLobbyState />
       </div>
     </div>

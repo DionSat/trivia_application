@@ -45,13 +45,18 @@ app.get('/leaderboard/total', db.getLeaderboardByTotal);
  * @param object that represents a room from rooms
  */
 const joinRoom = (socket, room) => {
-    room.sockets.push(socket);
-    socket.join(String(room.id));
-    socket.roomId = room.id;
-    socket.answeredQuestion = false;
-    socket.answer = null;
-    socket.score = 0;
-    console.log(socket.id, " Joined ", room.id);
+    if(room.activeQuestionStartDate == null) {
+        room.sockets.push(socket);
+        socket.join(String(room.id));
+        socket.roomId = room.id;
+        socket.answeredQuestion = false;
+        socket.answer = null;
+        socket.score = 0;
+        console.log(socket.id, " Joined ", room.id);
+    }
+    else {
+        socket.emit('gameInProgress')
+    }
 }
 
 /***
@@ -62,12 +67,24 @@ const joinRoom = (socket, room) => {
  const leaveRoom = (socket, room) => {
     if (room == null)
         return;
-
     let i = room.sockets.indexOf(socket);
     room.sockets.splice(i, 1);
     socket.leave(String(room.id));
     socket.roomId = null;
     console.log(socket.id, " Left ", room.id);
+    socket.ready = false;
+    if(room.sockets.length === 0) {
+        room.activeQuestionId = 0;
+        room.activeQuestionStartDate = null;
+        room.questions = [];
+        for (let i = 0; i < 10; i++) {
+            getTriviaQuestion((success, response) => {
+                if (success) {
+                    room.questions.push({ question: response.question, answer: response.answer, category: response.category  });
+                }
+            });
+        }
+    }
 }
 
 let interval = setInterval(() => intervalTick(), 500);
@@ -153,11 +170,11 @@ io.on("connection", (socket) => {
         for (let i = 0; i < 10; i++) {
             getTriviaQuestion((success, response) => {
                 if (success) {
-                    room.questions.push({ question: response.question, answer: response.answer });
+                    room.questions.push({ question: response.question, answer: response.answer, category: response.category });
                 }
             });
         }
-    
+        console.log('Room: ' + rooms);
         joinRoom(socket, room)
         callback(true);
     });
@@ -227,7 +244,7 @@ const sendRoomState = room => {
     let msLeft = null;
     if (room.activeQuestionStartDate == null) {
         // wait for everyone to be ready before beginning question
-        if (room.sockets.every(x => x.ready)) {
+        if (room.sockets.every(x => x.ready) && room.sockets.length !== 0) {
             room.activeQuestionStartDate = now;
         }
     } else if (room.activeQuestionId >= room.questions.length) {
@@ -246,7 +263,7 @@ const sendRoomState = room => {
         for (let i = 0; i < 10; i++) {
             getTriviaQuestion((success, response) => {
                 if (success) {
-                    room.questions.push({ question: response.question, answer: response.answer });
+                    room.questions.push({ question: response.question, answer: response.answer, category: response.category  });
                 }
             });
         }
@@ -269,9 +286,11 @@ const sendRoomState = room => {
     // answer is for debugging purposes
     let question = null;
     let answer = null;
+    let category = null;
     if (room.activeQuestionStartDate && room.activeQuestionId < room.questions.length) {
         question = room.questions[room.activeQuestionId].question;
         answer = room.questions[room.activeQuestionId].answer;
+        category = room.questions[room.activeQuestionId].category;
     }
 
     const response = {
@@ -282,6 +301,7 @@ const sendRoomState = room => {
         questionId: room.activeQuestionId,
         questionMsLeft: msLeft,
         answer: answer,
+        category: category,
         gameOver: room.activeQuestionId >= room.questions.length
     };
 
