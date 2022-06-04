@@ -5,7 +5,7 @@ function Leaderboard() {
     const [leaderboard, setLeaderboard] = useState(null);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:4001/leaderboard')
+        fetch('http://127.0.0.1:80/leaderboard')
           .then(response => response.json())
           .then(data => {
             console.log(data);
@@ -25,7 +25,7 @@ function Leaderboard() {
     }
 
     const getByAccuracy = () => {
-      fetch('http://127.0.0.1:4001/leaderboard/accuracy')
+      fetch('http://127.0.0.1:80/leaderboard/accuracy')
           .then(response => response.json())
           .then(data => {
             console.log(data);
@@ -37,7 +37,7 @@ function Leaderboard() {
     }
 
     const getByAnswers = () => {
-      fetch('http://127.0.0.1:4001/leaderboard/total')
+      fetch('http://127.0.0.1:80/leaderboard/correct')
           .then(response => response.json())
           .then(data => {
             console.log(data);

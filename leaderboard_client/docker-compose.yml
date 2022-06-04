@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  pythonapp:
+    container_name: pythonapp
+    image: pythonapp
+    build: .
+    ports:
+      - "80:80"
+    environment:
+      - DATABASE_URL=postgresql://postgres:Qm5RNjEp@localhost:5432/leaderboard
+    depends_on:
+      - db
+
+  db:
+    container_name: db
+    image: postgres:12
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=Qm5RNjEp
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=leaderboard
+      - POSTGRES_HOST=localhost
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
