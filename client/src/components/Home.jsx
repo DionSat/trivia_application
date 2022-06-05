@@ -6,6 +6,10 @@ import Navbar from './navbar';
 import { ToastContainer } from 'react-bootstrap';
 import Toasts from './Toast';
 
+var x = 'user';
+var y = 'user-score';
+var z = 0;
+
 function Home() {
   const [clientState, setClientState] = useState(null);
   const [roomState, setRoomState] = useState(null);
@@ -21,6 +25,32 @@ function Home() {
   const [inLobby, setInLobby] = useState(false);
   const [show, setShow] = React.useState(false);
   const [message, setMessage] = React.useState('');
+
+  const userResult = () => {
+    let x1 = JSON.stringify(roomState.players[0].username);
+    let y1 = JSON.stringify(roomState.players[0].score);
+    z = 1;
+    x = x1;
+    y = y1;
+    return alert('Hello ' + x + ' your score is ' + y);
+  };
+
+  const checkScore = () => {
+    if (z === 0) {
+      return null;
+    } else {
+      return (
+        <div className='main_container'>
+          <h1 style={{ fontWeight: 'bold', color: 'black' }}>
+            Latest Score Report
+          </h1>
+          <h2>
+            USER: {x} SCORED: {y} points out of 10
+          </h2>
+        </div>
+      );
+    }
+  };
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -316,6 +346,7 @@ function Home() {
               )}
             </div>
           )}
+          {clientState.ready && roomState.gameOver && userResult()}
         </div>
         <div>
           <RenderRoomInfos />
@@ -334,6 +365,7 @@ function Home() {
           <RenderLobbyState />
         </div>
       </div>
+      {checkScore()}
     </div>
   );
 }
