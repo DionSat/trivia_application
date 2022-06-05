@@ -20,7 +20,9 @@ function Leaderboard() {
 
   const LeaderboardHeader = () => {
     return (
-      <div className='leadheader'>
+      <div
+        className='leadheader'
+        style={{ backgroundColor: 'blue', color: 'white' }}>
         <h2>Leaderboard</h2>
       </div>
     );
@@ -53,9 +55,14 @@ function Leaderboard() {
   return (
     <>
       <Navbar />
-      <div className='container'>
+      <div
+        className='container'
+        style={{ border: '5px blue solid', paddingTop: '15px' }}>
         <LeaderboardHeader />
-        <table className='table table-striped' data-testid='leaderboard-table'>
+        <table
+          className='table table-striped'
+          data-testid='leaderboard-table'
+          style={{ border: '1px blue solid' }}>
           <thead>
             <tr key='head'>
               <th>
