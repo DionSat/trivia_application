@@ -3,8 +3,7 @@ import { SocketContext } from '../contexts/Socket/index';
 import '../assets/css/style.css';
 import { Link } from 'react-router-dom';
 import Navbar from './navbar';
-import '../assets/css/navbar.css';
-import { ToastContainer } from "react-bootstrap";
+import { ToastContainer } from 'react-bootstrap';
 import Toasts from './Toast';
 
 function Home() {
@@ -21,7 +20,7 @@ function Home() {
   const [loginFailed, setLoginFailed] = useState(false);
   const [inLobby, setInLobby] = useState(false);
   const [show, setShow] = React.useState(false);
-  const [message, setMessage] = React.useState("");
+  const [message, setMessage] = React.useState('');
 
   useEffect(() => {
     socket.on('clientState', (data) => {
@@ -41,7 +40,7 @@ function Home() {
     socket.on('gameInProgress', () => {
       setShow(true);
       setMessage(`Cannot join, game already in progress`);
-    })
+    });
   }, []);
 
   useEffect(() => {
@@ -205,131 +204,135 @@ function Home() {
   // if not logged in then show login screen
   if (clientState.username == null)
     return (
-      <div className='main_container'>
-        <b>
-          <h2>Login</h2>
-        </b>
-        <input
-          type='text'
-          value={loginUsername}
-          placeholder='username'
-          onInput={(e) => setLoginUsername(e.target.value)}
-        />
-        <input
-          type='password'
-          value={loginPassword}
-          placeholder='password'
-          onInput={(e) => setLoginPassword(e.target.value)}
-        />
-        <button
-          className='btn_go'
-          type='button'
-          disabled={
-            loginUsername == null ||
-            loginUsername == '' ||
-            loginPassword == null ||
-            loginPassword == ''
-          }
-          onClick={() => login(loginUsername, loginPassword)}>
-          Login
-        </button>
-        {loginFailed && <h4 className='login-failed'>Login Failed</h4>}
+      <div>
+        <Navbar />
+
+        <div className='main_container'>
+          <b>
+            <h2>Login</h2>
+          </b>
+          <input
+            type='text'
+            value={loginUsername}
+            placeholder='username'
+            onInput={(e) => setLoginUsername(e.target.value)}
+          />
+          <input
+            type='password'
+            value={loginPassword}
+            placeholder='password'
+            onInput={(e) => setLoginPassword(e.target.value)}
+          />
+          <button
+            className='btn_go'
+            type='button'
+            disabled={
+              loginUsername == null ||
+              loginUsername == '' ||
+              loginPassword == null ||
+              loginPassword == ''
+            }
+            onClick={() => login(loginUsername, loginPassword)}>
+            Login
+          </button>
+          {loginFailed && <h4 className='login-failed'>Login Failed</h4>}
+        </div>
       </div>
     );
 
   return (
-    <div className='main_container'>
-      <ToastContainer
-        className='position-absolute shrink-toast p-4'
-        position='top-center'>
-        <Toasts message={message} show={show} setShow={setShow} />
-      </ToastContainer>
+    <div>
       <Navbar />
-      <RenderClientState />
-      {!roomState && (
-        <p>
-          <button className='btn_main' type='button' onClick={createRoom}>
-            Create Room
-          </button>
-          <button className='btn_main' type='button' onClick={getRooms}>
-            Get Rooms
-          </button>
-        </p>
-      )}
-      <div>
-        {!clientState.ready && roomState && (
-          <div>
-            <div>{roomState.name}</div>
-            <div>
-              <button className='btn_go' type='button' onClick={readyUp}>
-                Ready
-              </button>
-            </div>
-          </div>
+      <div className='main_container'>
+        <ToastContainer
+          className='position-absolute shrink-toast p-4'
+          position='top-center'>
+          <Toasts message={message} show={show} setShow={setShow} />
+        </ToastContainer>
+        <RenderClientState />
+        {!roomState && (
+          <p>
+            <button className='btn_main' type='button' onClick={createRoom}>
+              Create Room
+            </button>
+            <button className='btn_main' type='button' onClick={getRooms}>
+              Get Rooms
+            </button>
+          </p>
         )}
-        {roomState && allReady && (
-          <div>
-            <div>{roomState.name}</div>
+        <div>
+          {!clientState.ready && roomState && (
             <div>
-              {roomState.players.map((o, i) => {
-                return (
-                  <div>
-                    {o.username}: {o.score}
-                  </div>
-                );
-              })}
-            </div>
-            {roomState.gameOver && (
-              <b>
-                <h2>Game Over!</h2>
-              </b>
-            )}
-            {!roomState.gameOver && (
+              <div>{roomState.name}</div>
               <div>
-                <b>
-                  <h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2>
-                </b>
-                <p>
-                  Category: {roomState.category.title}
-                </p>
-                <b>
-                  #{roomState.questionId + 1}: {roomState.question}
-                </b>
-                <div>{roomState.answer}</div>
-                <div>
-                  <input
-                    type='text'
-                    value={answerText}
-                    disabled={lastAnsweredQuestionId == roomState.questionId}
-                    onInput={(e) => setAnswerText(e.target.value)}
-                  />
-                  <button
-                    className='btn_go'
-                    type='button'
-                    onClick={submitAnswer}>
-                    Submit
-                  </button>
-                </div>
+                <button className='btn_go' type='button' onClick={readyUp}>
+                  Ready
+                </button>
               </div>
-            )}
-          </div>
-        )}
-      </div>
-      <div>
-        <RenderRoomInfos />
-        {!allReady && roomState && (
-          <>
-            <div>
-              <button
-                className='btn_stop'
-                type='button'
-                onClick={() => leaveRoom()}>
-                Leave {roomState.name}
-              </button>
             </div>
-          </>
-        )}
-        <RenderLobbyState />
+          )}
+          {roomState && allReady && (
+            <div>
+              <div>{roomState.name}</div>
+              <div>
+                {roomState.players.map((o, i) => {
+                  return (
+                    <div>
+                      {o.username}: {o.score}
+                    </div>
+                  );
+                })}
+              </div>
+              {roomState.gameOver && (
+                <b>
+                  <h2>Game Over!</h2>
+                </b>
+              )}
+              {!roomState.gameOver && (
+                <div>
+                  <b>
+                    <h2>{Math.ceil(roomState.questionMsLeft / 1000)}</h2>
+                  </b>
+                  <p>Category: {roomState.category.title}</p>
+                  <b>
+                    #{roomState.questionId + 1}: {roomState.question}
+                  </b>
+                  <div>{roomState.answer}</div>
+                  <div>
+                    <input
+                      type='text'
+                      value={answerText}
+                      disabled={lastAnsweredQuestionId == roomState.questionId}
+                      onInput={(e) => setAnswerText(e.target.value)}
+                    />
+                    <button
+                      className='btn_go'
+                      type='button'
+                      onClick={submitAnswer}>
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <div>
+          <RenderRoomInfos />
+          {!allReady && roomState && (
+            <>
+              <div>
+                <button
+                  className='btn_stop'
+                  type='button'
+                  onClick={() => leaveRoom()}>
+                  Leave {roomState.name}
+                </button>
+              </div>
+            </>
+          )}
+          <RenderLobbyState />
+        </div>
       </div>
     </div>
   );
