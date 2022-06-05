@@ -32,7 +32,7 @@ function Home() {
     z = 1;
     x = x1;
     y = y1;
-    return alert('Hello ' + x + ' your score is ' + y);
+    // return alert('Hello ' + x + ' your score is ' + y);
   };
 
   const checkScore = () => {
@@ -44,9 +44,9 @@ function Home() {
           <h1 style={{ fontWeight: 'bold', color: 'black' }}>
             Latest Score Report
           </h1>
-          <h2>
+          <h3>
             USER: {x} SCORED: {y} points out of 10
-          </h2>
+          </h3>
         </div>
       );
     }
