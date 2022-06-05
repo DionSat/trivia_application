@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SocketContext } from '../contexts/Socket/index';
 import Navbar from './navbar';
 import '../assets/css/navbar.css';
+import '../assets/css/leaderboard.css';
 
 function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState(null);
@@ -55,14 +56,11 @@ function Leaderboard() {
   return (
     <>
       <Navbar />
-      <div
-        className='container'
-        style={{ border: '5px blue solid', paddingTop: '15px' }}>
+      <div className='container outer-container'>
         <LeaderboardHeader />
         <table
-          className='table table-striped'
-          data-testid='leaderboard-table'
-          style={{ border: '1px blue solid' }}>
+          className='table table-striped table-container'
+          data-testid='leaderboard-table'>
           <thead>
             <tr key='head'>
               <th>

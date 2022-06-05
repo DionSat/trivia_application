@@ -29,7 +29,7 @@ function Home() {
     results = roomState.players;
     hasFinishedARound = true;
 
-    // return alert('Hello ' + x + ' your score is ' + y);
+    return alert('GAME OVER');
   };
 
   const checkScore = () => {
@@ -319,7 +319,7 @@ function Home() {
               </div>
               {roomState.gameOver && (
                 <b>
-                  <h2>Game Over!</h2>
+                  <h2>Time is up, the Trivia Game is Over!</h2>
                 </b>
               )}
               {!roomState.gameOver && (
