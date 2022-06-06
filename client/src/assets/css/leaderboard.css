@@ -1,0 +1,8 @@
+.outer-container {
+  border: 5px blue solid;
+  padding-top: 15px;
+}
+
+.table-container {
+  border: 1px blue solid;
+}

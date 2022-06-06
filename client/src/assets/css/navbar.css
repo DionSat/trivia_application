@@ -1,11 +1,11 @@
 .nav {
-  background-color: rgb(227, 227, 255);
+  background-color: white;
   color: black;
   display: flex;
   justify-content: space-between;
   align-items: stretch;
   gap: 2rem;
-  border: 1px black solid;
+  border: 3px blue solid;
 }
 
 .navbar-title {
@@ -29,7 +29,7 @@
   display: flex;
   align-items: center;
   padding: 0.25rem;
-  border-left: 1px black solid;
+  border-left: 2px blue solid;
 }
 
 .nav a:hover {
