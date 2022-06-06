@@ -1,6 +1,10 @@
 # To Run the Application
 
-Use
+### Install Dependencies
+Run
+### `npm install`
+
+### Start the frontend
 ### `npm start`
 
 Runs the app in the development mode.\

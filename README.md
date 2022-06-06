@@ -1,6 +1,6 @@
 # trivia_application
 
-### Copy the .env into the directories
+### Copy the `.env` into the directories
 To run the application please make sure you have postgres credentials ready. Take the ```env.sample``` and copy it to the leaderboard_client folder and the server folder. You need an ```.env``` file in both the server and leaderboard_client folder. Change the name to the ```.env``` and put your credential in the file. 
 
 ### Install Dependencies
