@@ -7,24 +7,19 @@ services:
     build: .
     ports:
       - "80:80"
-    environment:
-      - DATABASE_URL=postgresql://postgres:Qm5RNjEp@localhost:5432/leaderboard
-    depends_on:
-      - db
 
-  db:
-    container_name: db
+  postgres:
+    container_name: postgres
     image: postgres:12
     restart: always
+    expose:
+      - "5432"
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_PASSWORD=Qm5RNjEp
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=leaderboard
-      - POSTGRES_HOST=localhost
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-volumes:
-  pgdata: {}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_HOST=${DB_HOST}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

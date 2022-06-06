@@ -5,7 +5,7 @@ function Leaderboard() {
     const [leaderboard, setLeaderboard] = useState(null);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:80/leaderboard')
+        fetch('http://localhost:80/leaderboard')
           .then(response => response.json())
           .then(data => {
             console.log(data);
@@ -25,7 +25,7 @@ function Leaderboard() {
     }
 
     const getByAccuracy = () => {
-      fetch('http://127.0.0.1:80/leaderboard/accuracy')
+      fetch('http://localhost:80/leaderboard/accuracy')
           .then(response => response.json())
           .then(data => {
             console.log(data);
@@ -37,7 +37,7 @@ function Leaderboard() {
     }
 
     const getByAnswers = () => {
-      fetch('http://127.0.0.1:80/leaderboard/correct')
+      fetch('http://localhost:80/leaderboard/correct')
           .then(response => response.json())
           .then(data => {
             console.log(data);
@@ -82,16 +82,16 @@ function Leaderboard() {
                   leaderboard.map((value, index) => (
                     <tr>
                         <td className="rank">
-                          {value.id}
+                          {index + 1}
                         </td>
                         <td className="username">
-                          {value.username}
+                          {value[1]}
                         </td>
                         <td className="correct-answers">
-                          {value.answerscorrect}
+                          {value[2]}
                         </td>
                         <td className="accuracy">
-                          {value.accuracy * 100 + '%'}
+                          {value[4] * 100 + '%'}
                         </td>
                     </tr>
                     )
