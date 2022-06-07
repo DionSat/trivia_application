@@ -21,3 +21,5 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_HOST=${DB_HOST}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
