@@ -18,7 +18,7 @@ def get_items():
         dbname=os.getenv('DB_DATABASE'),
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
-        host="host.docker.internal")
+        host="postgres")
     cur = conn.cursor()
     cur.execute("SELECT * FROM leaderboard;")
     results = cur.fetchall()
@@ -32,7 +32,7 @@ def get_items_correct():
         dbname=os.getenv('DB_DATABASE'),
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
-        host="host.docker.internal")
+        host="postgres")
     cur = conn.cursor()
     cur.execute("SELECT * FROM leaderboard ORDER BY answerscorrect DESC;")
     results = cur.fetchall()
@@ -46,7 +46,7 @@ def get_items_accuracy():
         dbname=os.getenv('DB_DATABASE'),
         user=os.getenv('DB_USER'),
         password=os.getenv('DB_PASSWORD'),
-        host="host.docker.internal")
+        host="postgres")
     cur = conn.cursor()
     cur.execute("SELECT * FROM leaderboard ORDER BY accuracy DESC;")
     results = cur.fetchall()
