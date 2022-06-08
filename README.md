@@ -7,5 +7,5 @@ To run the application please make sure you have postgres credentials ready. Tak
 Make sure to intall the dependencies in the server and client folder using ```npm install```. Also make sure you have docker running.
 
 ### Start the application
-There are indivdual README on how to run each folder. There are 3 directories to run: docker compose in the leaderboard_client,server and the client. 
+There are indivdual README on how to run each folder. There are 3 directories to run: leaderboard_client, server and client. 
 Run ```npm start``` in the server and client folder. Then run ```docker compose up``` in the leaderboard_client folder.
