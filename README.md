@@ -9,3 +9,5 @@ Make sure to intall the dependencies in the server and client folder using ```np
 ### Start the application
 There are indivdual README on how to run each folder. There are 3 directories to run: leaderboard_client, server and client. 
 Run ```npm start``` in the server and client folder. Then run ```docker compose up``` in the leaderboard_client folder.
+
+Note: We currently using a fix to connect to the db containers in docker using host.docker.internal. This is windows fix so docker may not work on linux.
