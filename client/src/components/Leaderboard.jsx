@@ -7,17 +7,17 @@ import '../assets/css/leaderboard.css';
 function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState(null);
 
-  useEffect(() => {
-    fetch('http://127.0.0.1:4001/leaderboard')
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setLeaderboard(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
+    useEffect(() => {
+        fetch('http://localhost:80/leaderboard')
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            setLeaderboard(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });  
+    }, []);
 
   const LeaderboardHeader = () => {
     return (
@@ -29,29 +29,29 @@ function Leaderboard() {
     );
   };
 
-  const getByAccuracy = () => {
-    fetch('http://127.0.0.1:4001/leaderboard/accuracy')
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setLeaderboard(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+    const getByAccuracy = () => {
+      fetch('http://localhost:80/leaderboard/accuracy')
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            setLeaderboard(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });  
+    }
 
-  const getByAnswers = () => {
-    fetch('http://127.0.0.1:4001/leaderboard/total')
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setLeaderboard(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+    const getByAnswers = () => {
+      fetch('http://localhost:80/leaderboard/correct')
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+            setLeaderboard(data);
+          })
+          .catch((error) => {
+            console.error(error);
+          });  
+    }
 
   return (
     <>
@@ -89,10 +89,10 @@ function Leaderboard() {
             {leaderboard &&
               leaderboard.map((value, index) => (
                 <tr>
-                  <td className='rank'>{value.id}</td>
-                  <td className='username'>{value.username}</td>
-                  <td className='correct-answers'>{value.answerscorrect}</td>
-                  <td className='accuracy'>{value.accuracy * 100 + '%'}</td>
+                  <td className='rank'>{index + 1}</td>
+                  <td className='username'>{value[1]}</td>
+                  <td className='correct-answers'>{value[2]}</td>
+                  <td className='accuracy'>{value[4] * 100 + '%'}</td>
                 </tr>
               ))}
           </tbody>
