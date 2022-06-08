@@ -6,9 +6,6 @@ import Navbar from './navbar';
 import { ToastContainer } from 'react-bootstrap';
 import Toasts from './Toast';
 
-var hasFinishedARound = false;
-var results;
-
 function Home() {
   const [clientState, setClientState] = useState(null);
   const [roomState, setRoomState] = useState(null);
@@ -24,28 +21,20 @@ function Home() {
   const [inLobby, setInLobby] = useState(false);
   const [show, setShow] = React.useState(false);
   const [message, setMessage] = React.useState('');
+  const [results, setResults] = React.useState([]);
+  const [gameFinished, setGameFinished] =  React.useState(false);
 
-  const userResult = () => {
-    results = roomState.players;
-    hasFinishedARound = true;
-
-    return alert('GAME OVER');
-  };
-
-  const checkScore = () => {
-    if (hasFinishedARound === false) {
-      return null;
-    } else {
+  const CheckScore = () => {
       return (
         <div className='main_container'>
           <h1 style={{ fontWeight: 'bold', color: 'black' }}>
             Latest Score Report
           </h1>
           <div>
-            {results.map((result) => {
+            {results.map((player) => {
               return (
                 <h3>
-                  USER: {result.username} SCORED: {result.score} points out of
+                  USER: {player.username} SCORED: {player.score} points out of
                   10.
                 </h3>
               );
@@ -53,7 +42,6 @@ function Home() {
           </div>
         </div>
       );
-    }
   };
 
   useEffect(() => {
@@ -65,6 +53,7 @@ function Home() {
     });
     socket.on('roomState', (data) => {
       console.log(data);
+      console.log('Results: ' + results);
       setRoomState(data);
       if (data.players.every((element) => element.ready === true)) {
         setAllReady(true);
@@ -83,6 +72,10 @@ function Home() {
         setReady(false);
         setAllReady(false);
         setInLobby(true);
+        if(clientState.ready) {
+          setResults(roomState.players);
+          setGameFinished(true);
+        }
       }
     }
   }, [roomState]);
@@ -94,6 +87,7 @@ function Home() {
       (response) => {
         if (response) {
           setAllReady(false);
+          setGameFinished(false);
         }
         console.log(response);
       }
@@ -113,6 +107,7 @@ function Home() {
       console.log(response);
       if (response) {
         setAllReady(false);
+        setGameFinished(false);
       }
     });
     setInLobby(true);
@@ -350,7 +345,7 @@ function Home() {
               )}
             </div>
           )}
-          {clientState.ready && roomState.gameOver && userResult()}
+          {/*clientState.ready && roomState.gameOver && userResult()*/}
         </div>
         <div>
           <RenderRoomInfos />
@@ -369,8 +364,11 @@ function Home() {
           <RenderLobbyState />
         </div>
       </div>
-
-      {checkScore()}
+      {gameFinished && (
+        <>
+          <CheckScore />
+        </>
+      )}
     </div>
   );
 }

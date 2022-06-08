@@ -11,7 +11,7 @@ var crypto = require('crypto');
 require('dotenv').config()
 const db = require('./Database/queries');
 
-const questionDurationMs = 20 * 1000;
+const questionDurationMs = 5 * 1000;
 
 const fillerWords = [ "of", "a", "the", "and" ]
 
@@ -302,7 +302,7 @@ const sendRoomState = room => {
         questionMsLeft: msLeft,
         answer: answer,
         category: category,
-        gameOver: room.activeQuestionId >= room.questions.length
+        gameOver: room.activeQuestionId >= room.questions.length && room.activeQuestionStartDate !== null
     };
 
     // Emit state to all clients in room
