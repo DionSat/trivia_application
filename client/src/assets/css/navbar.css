@@ -1,0 +1,38 @@
+.nav {
+  background-color: white;
+  color: black;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 2rem;
+  border: 3px blue solid;
+}
+
+.navbar-title {
+  padding-left: 2rem;
+  font-size: 3rem;
+}
+
+.nav ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+}
+
+.nav a {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: black;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-left: 2px blue solid;
+}
+
+.nav a:hover {
+  background-color: blue;
+  color: white;
+}

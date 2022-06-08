@@ -1,8 +1,14 @@
-import React from 'react';
+import React from "react";
 import ReactDOM from 'react-dom/client';
 import Routing from './Routing';
-
+import { SocketProvider } from './contexts/Socket/'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css'
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+
 root.render(
-    <Routing />
+    <SocketProvider>
+        <Routing />
+    </SocketProvider>
 );
